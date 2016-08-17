@@ -138,6 +138,10 @@
           }
         }
 
+        invokeService(serviceName, methodName, data) {
+          return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(data));
+        }
+
         loadMetadata() {
           return this._ajax('GET', 'metadata/entities');
         }
