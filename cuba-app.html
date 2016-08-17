@@ -118,6 +118,10 @@
           this.loginCallbacks.add(cb);
         }
 
+        getPermissions() {
+          return this._ajax('GET', 'permissions', null);
+        }
+
         loadEntities(metaClass, view = '_local', sort = null) {
           var opts = {view: view};
           if (sort) {
