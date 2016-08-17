@@ -100,8 +100,6 @@
         }
 
         logout() {
-          sessionStorage.removeItem('cubaAccessToken');
-          sessionStorage.removeItem('cubaUserName');
           this.userName = null;
           var ajaxSettings = {
             type: 'POST',
@@ -111,6 +109,8 @@
               "Authorization": "Basic Y2xpZW50OnNlY3JldA==" //todo minaev config
             }
           };
+          sessionStorage.removeItem('cubaAccessToken');
+          sessionStorage.removeItem('cubaUserName');
           return $.ajax(ajaxSettings);
         }
 
