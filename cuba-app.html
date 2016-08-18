@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer-ts/polymer-ts.html">
 
 <!--
 `cuba-app`
@@ -6,57 +7,5 @@
 
 @demo demo/index.html 
 -->
-
-<dom-module id="cuba-app">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <content></content>
-  </template>
-  <script src="../jquery/dist/jquery.min.js"></script>
-  <script>
-    (function(){
-      "use strict";
-
-      Polymer({
-
-        is: 'cuba-app',
-
-        properties: {
-          apiUrl: {
-            type: String,
-            observer: '_apiUrlChanged',
-            value: 'http://localhost:8080/app/dispatch/api/'
-          },
-          userName: {
-            type: String,
-            value: function() {
-              return cubaApp.userName;
-            },
-            notify: true,
-            readOnly: true
-          }
-        },
-
-        listeners: {
-          'cubalogin': '_handleLoginEvent'
-        },
-
-        _apiUrlChanged() {
-          cubaApp.apiUrl = this.apiUrl;
-        },
-
-        _handleLoginEvent(e, eventData) {
-          cubaApp.restApiToken = eventData.token;
-          cubaApp.userName = eventData.login;
-        }
-
-      });
-
-      window.cubaApp = new CubaApp();
-    })();
-  </script>
-</dom-module>
+<script src="cuba-lib.js"></script>
+<script src="cuba-app.js"></script>
