@@ -84,11 +84,19 @@ export class CubaApp {
     }
 
     loadMetadata() {
-        return this._ajax('GET', 'metadata/entities');
+        return this._ajax('GET', 'metadata/entities', null);
     }
 
     loadEntityMetadata(metaClass) {
-        return this._ajax('GET', 'metadata/entities' + '/' + metaClass);
+        return this._ajax('GET', 'metadata/entities' + '/' + metaClass, null);
+    }
+
+    getPermissions() {
+        return this._ajax('GET', 'permissions', null);
+    }
+
+    getUserInfo() {
+        return this._ajax('GET', 'userInfo', null);
     }
 
     _ajax(type, path, data) {

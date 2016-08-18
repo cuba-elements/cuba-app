@@ -13,3 +13,5 @@ gulp.task('build', () => {
     .pipe(typescript(tsProject))
     .pipe(gulp.dest('./'));
 });
+
+gulp.task('default', ['build']);

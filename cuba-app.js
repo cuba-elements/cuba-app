@@ -1,38 +1,24 @@
-"use strict";
-var CubaApp = (function () {
-    function CubaApp(apiUrl) {
+export class CubaApp {
+    constructor(apiUrl) {
         this.apiUrl = apiUrl;
         this.loginCallbacks = $.Callbacks();
     }
-    Object.defineProperty(CubaApp.prototype, "restApiToken", {
-        get: function () {
-            return sessionStorage.getItem('cubaAccessToken');
-        },
-        set: function (token) {
-            sessionStorage.setItem('cubaAccessToken', token);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(CubaApp.prototype, "userName", {
-        get: function () {
-            return sessionStorage.getItem('cubaUserName');
-        },
-        set: function (userName) {
-            sessionStorage.setItem('cubaUserName', userName);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(CubaApp.prototype, "loggedIn", {
-        get: function () {
-            return typeof this.restApiToken !== 'undefined' && this.restApiToken != null;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    CubaApp.prototype.login = function (login, password) {
-        var _this = this;
+    get restApiToken() {
+        return sessionStorage.getItem('cubaAccessToken');
+    }
+    set restApiToken(token) {
+        sessionStorage.setItem('cubaAccessToken', token);
+    }
+    get userName() {
+        return sessionStorage.getItem('cubaUserName');
+    }
+    set userName(userName) {
+        sessionStorage.setItem('cubaUserName', userName);
+    }
+    get loggedIn() {
+        return typeof this.restApiToken !== 'undefined' && this.restApiToken != null;
+    }
+    login(login, password) {
         return $.ajax({
             url: this.apiUrl + 'oauth/token',
             type: 'POST',
@@ -41,13 +27,13 @@ var CubaApp = (function () {
             },
             dataType: 'json',
             data: { grant_type: 'password', username: login, password: password }
-        }).then(function (data) {
-            _this.restApiToken = data.access_token;
-            _this.userName = login;
-            _this.loginCallbacks.fire();
+        }).then((data) => {
+            this.restApiToken = data.access_token;
+            this.userName = login;
+            this.loginCallbacks.fire();
         });
-    };
-    CubaApp.prototype.logout = function () {
+    }
+    logout() {
         this.userName = null;
         var ajaxSettings = {
             type: 'POST',
@@ -60,38 +46,41 @@ var CubaApp = (function () {
         sessionStorage.removeItem('cubaAccessToken');
         sessionStorage.removeItem('cubaUserName');
         return $.ajax(ajaxSettings);
-    };
-    CubaApp.prototype.onLogin = function (cb) {
+    }
+    onLogin(cb) {
         this.loginCallbacks.add(cb);
-    };
-    CubaApp.prototype.loadEntities = function (metaClass, view, sort) {
-        if (view === void 0) { view = '_local'; }
-        if (sort === void 0) { sort = null; }
+    }
+    loadEntities(metaClass, view = '_local', sort = null) {
         var opts = { view: view };
         if (sort) {
             opts.sort = sort;
         }
         return this._ajax('GET', 'entities/' + metaClass, opts);
-    };
-    CubaApp.prototype.loadEntity = function (metaClass, id, view) {
-        if (view === void 0) { view = '_local'; }
+    }
+    loadEntity(metaClass, id, view = '_local') {
         return this._ajax('GET', 'entities/' + metaClass + '/' + id, { view: view });
-    };
-    CubaApp.prototype.commitEntity = function (metaClass, entity) {
+    }
+    commitEntity(metaClass, entity) {
         if (entity.id) {
             return this._ajax('PUT', 'entities/' + metaClass + '/' + entity.id, JSON.stringify(entity));
         }
         else {
             return this._ajax('POST', 'entities/' + metaClass, JSON.stringify(entity));
         }
-    };
-    CubaApp.prototype.loadMetadata = function () {
+    }
+    loadMetadata() {
         return this._ajax('GET', 'metadata/entities');
-    };
-    CubaApp.prototype.loadEntityMetadata = function (metaClass) {
+    }
+    loadEntityMetadata(metaClass) {
         return this._ajax('GET', 'metadata/entities' + '/' + metaClass);
-    };
-    CubaApp.prototype._ajax = function (type, path, data) {
+    }
+    getPermissions() {
+        return this._ajax('GET', 'permissions', null);
+    }
+    getUserInfo() {
+        return this._ajax('GET', 'userInfo', null);
+    }
+    _ajax(type, path, data) {
         var ajaxSettings = {
             type: type,
             url: this.apiUrl + path,
@@ -104,7 +93,5 @@ var CubaApp = (function () {
             ajaxSettings.contentType = 'application/json';
         }
         return $.ajax(ajaxSettings);
-    };
-    return CubaApp;
-}());
-exports.CubaApp = CubaApp;
+    }
+}
