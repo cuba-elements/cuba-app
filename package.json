@@ -1,0 +1,15 @@
+{
+  "name": "cuba-app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "cuba-app.js",
+  "repository": {
+    "type": "git",
+    "url": "git@git.haulmont.com:platform-web-components/cuba-app.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
+  },
+  "author": "Vlad Minaev <minaev@haulmont.com>",
+  "license": "Apache-2.0"
+}
