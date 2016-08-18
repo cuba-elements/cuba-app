@@ -15,10 +15,11 @@ var CubaApp = (function (_super) {
         _super.apply(this, arguments);
     }
     CubaApp.prototype.ready = function () {
-        window['cubaApp'] = new Cuba(this.apiUrl);
+        this.cubaApp = new Cuba(this.apiUrl);
+        window['cubaApp'] = this.cubaApp;
     };
     CubaApp.prototype._apiUrlChanged = function () {
-        cubaApp.apiUrl = this.apiUrl;
+        this.cubaApp.apiUrl = this.apiUrl;
     };
     __decorate([
         property({ type: String, value: "http://localhost:8080/app/dispatch/api/", observer: "_apiUrlChanged" })
@@ -28,3 +29,4 @@ var CubaApp = (function (_super) {
     ], CubaApp);
     return CubaApp;
 }(polymer.Base));
+CubaApp.register();
