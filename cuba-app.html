@@ -122,6 +122,10 @@
           return this._ajax('GET', 'permissions', null);
         }
 
+        getUserInfo() {
+          return this._ajax('GET', 'userInfo', null);
+        }
+
         loadEntities(metaClass, view = '_local', sort = null) {
           var opts = {view: view};
           if (sort) {
