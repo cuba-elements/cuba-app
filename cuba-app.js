@@ -1,4 +1,3 @@
-"use strict";
 var CubaApp = (function () {
     function CubaApp(apiUrl) {
         this.apiUrl = apiUrl;
@@ -113,4 +112,3 @@ var CubaApp = (function () {
     };
     return CubaApp;
 }());
-exports.CubaApp = CubaApp;
