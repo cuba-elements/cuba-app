@@ -1,6 +1,6 @@
 declare let $: any;
 
-class CubaApp {
+class Cuba {
 
     private loginCallbacks;
 

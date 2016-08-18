@@ -14,6 +14,9 @@ var CubaApp = (function (_super) {
     function CubaApp() {
         _super.apply(this, arguments);
     }
+    CubaApp.prototype.ready = function () {
+        window['cubaApp'] = new Cuba(this.apiUrl);
+    };
     CubaApp.prototype._apiUrlChanged = function () {
         cubaApp.apiUrl = this.apiUrl;
     };
