@@ -12,13 +12,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var CubaApp = (function (_super) {
     __extends(CubaApp, _super);
     function CubaApp() {
+        _super.apply(this, arguments);
+    }
+    CubaApp.prototype.created = function () {
         this.cubaApp = new Cuba(this.apiUrl);
         window['cubaApp'] = this.cubaApp;
-    }
+    };
     CubaApp.prototype._apiUrlChanged = function () {
-        if (this.cubaApp) {
-            this.cubaApp.apiUrl = this.apiUrl;
-        }
+        this.cubaApp.apiUrl = this.apiUrl;
     };
     __decorate([
         property({ type: String, value: "http://localhost:8080/app/dispatch/api/", observer: "_apiUrlChanged" })

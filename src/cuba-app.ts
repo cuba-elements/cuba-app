@@ -3,20 +3,18 @@ declare let cubaApp:CubaApp;
 @component("cuba-app")
 class CubaApp extends polymer.Base {
 
-    cubaApp: Cuba;
+    private cubaApp: Cuba;
 
     @property({type: String, value: "http://localhost:8080/app/dispatch/api/", observer: "_apiUrlChanged"})
     apiUrl: string;
 
-    constructor() {
+    created() {
         this.cubaApp = new Cuba(this.apiUrl);
         window['cubaApp'] = this.cubaApp;
     }
 
     private _apiUrlChanged():void {
-        if (this.cubaApp) {
-            this.cubaApp.apiUrl = this.apiUrl;
-        }
+        this.cubaApp.apiUrl = this.apiUrl;
     }
 
 }
