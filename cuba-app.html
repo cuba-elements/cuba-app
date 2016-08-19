@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../polymer-ts/polymer-ts.html">
 
 <!--
 `cuba-app`
@@ -7,6 +6,39 @@
 
 @demo demo/index.html 
 -->
-<script src="../jquery/dist/jquery.min.js"></script>
-<script src="cuba.js"></script>
-<script src="cuba-app.js"></script>
+<dom-module id="cuba-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <content></content>
+  </template>
+  <script src="../jquery/dist/jquery.min.js"></script>
+  <script src="cuba.js"></script>
+  <script>
+    (function(){
+      "use strict";
+
+      Polymer({
+
+        is: 'cuba-app',
+
+        properties: {
+          apiUrl: {
+            type: String,
+            observer: '_apiUrlChanged'
+          }
+        },
+
+        _apiUrlChanged() {
+          cubaApp.apiUrl = this.apiUrl;
+        }
+
+      });
+
+      window.cubaApp = new Cuba();
+    })();
+  </script>
+</dom-module>
