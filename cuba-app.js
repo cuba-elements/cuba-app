@@ -16,7 +16,7 @@ var CubaApp = (function (_super) {
         _super.apply(this, arguments);
     }
     CubaApp.prototype.created = function () {
-        this.cubaApp = new Cuba(this.apiUrl);
+        this.cubaApp = new Cuba();
         window['cubaApp'] = this.cubaApp;
     };
     CubaApp.prototype._apiUrlChanged = function () {

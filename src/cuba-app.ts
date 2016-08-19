@@ -5,13 +5,13 @@ declare let cubaApp:CubaApp;
 @component("cuba-app")
 class CubaApp extends polymer.Base {
 
-    private cubaApp: Cuba;
+    cubaApp: Cuba;
 
     @property({type: String, observer: "_apiUrlChanged"})
     apiUrl: string;
 
     created() {
-        this.cubaApp = new Cuba(this.apiUrl);
+        this.cubaApp = new Cuba();
         window['cubaApp'] = this.cubaApp;
     }
 
