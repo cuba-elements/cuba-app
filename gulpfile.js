@@ -2,16 +2,18 @@
 
 const gulp = require('gulp');
 const typescript = require('gulp-typescript');
+const mergeStream = require('merge-stream');
 
 
 
 
 gulp.task('build', () => {
   const tsProject = typescript.createProject('tsconfig.json');
-  return gulp
-    .src('src/**/*.ts')
-    .pipe(typescript(tsProject))
-    .pipe(gulp.dest('./'));
+  const tsResult = gulp.src('src/**/*.ts').pipe(typescript(tsProject));
+  return mergeStream([
+      tsResult.dts.pipe(gulp.dest('./')),
+      tsResult.js.pipe(gulp.dest('./'))
+    ]);
 });
 
 gulp.task('default', ['build']);

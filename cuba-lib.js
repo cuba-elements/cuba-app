@@ -1,7 +1,11 @@
 var Cuba = (function () {
-    function Cuba(apiUrl) {
+    function Cuba(apiUrl, restClientId, restClientSecret) {
+        if (apiUrl === void 0) { apiUrl = 'http://localhost:8080/app/rest/v2/'; }
+        if (restClientId === void 0) { restClientId = 'client'; }
+        if (restClientSecret === void 0) { restClientSecret = 'secret'; }
         this.apiUrl = apiUrl;
-        this.loginCallbacks = $.Callbacks();
+        this.restClientId = restClientId;
+        this.restClientSecret = restClientSecret;
     }
     Object.defineProperty(Cuba.prototype, "restApiToken", {
         get: function () {
@@ -13,55 +17,28 @@ var Cuba = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Cuba.prototype, "userName", {
-        get: function () {
-            return sessionStorage.getItem('cubaUserName');
-        },
-        set: function (userName) {
-            sessionStorage.setItem('cubaUserName', userName);
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Cuba.prototype, "loggedIn", {
-        get: function () {
-            return typeof this.restApiToken !== 'undefined' && this.restApiToken != null;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Cuba.prototype.login = function (login, password) {
         var _this = this;
         return $.ajax({
             url: this.apiUrl + 'oauth/token',
             type: 'POST',
-            headers: {
-                "Authorization": "Basic Y2xpZW50OnNlY3JldA==" //todo minaev config
-            },
+            headers: this._getBasicAuthHeaders(),
             dataType: 'json',
             data: { grant_type: 'password', username: login, password: password }
         }).then(function (data) {
             _this.restApiToken = data.access_token;
-            _this.userName = login;
-            _this.loginCallbacks.fire();
         });
     };
     Cuba.prototype.logout = function () {
-        this.userName = null;
         var ajaxSettings = {
             type: 'POST',
             url: this.apiUrl + 'oauth/revoke',
             data: { token: this.restApiToken },
-            headers: {
-                "Authorization": "Basic Y2xpZW50OnNlY3JldA==" //todo minaev config
-            }
+            headers: this._getBasicAuthHeaders()
         };
         sessionStorage.removeItem('cubaAccessToken');
         sessionStorage.removeItem('cubaUserName');
         return $.ajax(ajaxSettings);
-    };
-    Cuba.prototype.onLogin = function (cb) {
-        this.loginCallbacks.add(cb);
     };
     Cuba.prototype.loadEntities = function (metaClass, view, sort) {
         if (view === void 0) { view = '_local'; }
@@ -95,6 +72,11 @@ var Cuba = (function () {
     };
     Cuba.prototype.getUserInfo = function () {
         return this._ajax('GET', 'userInfo', null);
+    };
+    Cuba.prototype._getBasicAuthHeaders = function () {
+        return {
+            "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
+        };
     };
     Cuba.prototype._ajax = function (type, path, data) {
         var ajaxSettings = {

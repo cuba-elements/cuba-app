@@ -8,7 +8,8 @@
     "url": "git@git.haulmont.com:platform-web-components/cuba-app.git"
   },
   "devDependencies": {
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "merge-stream": "^1.0.0"
   },
   "author": "Vlad Minaev <minaev@haulmont.com>",
   "license": "Apache-2.0"

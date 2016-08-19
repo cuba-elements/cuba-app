@@ -2,10 +2,9 @@ declare let $: any;
 
 class Cuba {
 
-    private loginCallbacks;
-
-    constructor (public apiUrl) {
-        this.loginCallbacks = $.Callbacks();
+    constructor (public apiUrl = 'http://localhost:8080/app/rest/v2/',
+                 public restClientId = 'client',
+                 public restClientSecret = 'secret') {
     }
 
     get restApiToken() {
@@ -16,55 +15,32 @@ class Cuba {
         sessionStorage.setItem('cubaAccessToken', token);
     }
 
-    get userName() {
-        return sessionStorage.getItem('cubaUserName');
-    }
-
-    set userName(userName) {
-        sessionStorage.setItem('cubaUserName', userName);
-    }
-
-    get loggedIn() {
-        return typeof this.restApiToken !== 'undefined' && this.restApiToken != null;
-    }
-
     login(login, password) {
         return $.ajax({
             url: this.apiUrl + 'oauth/token',
             type: 'POST',
-            headers: {
-                "Authorization": "Basic Y2xpZW50OnNlY3JldA==" //todo minaev config
-            },
+            headers: this._getBasicAuthHeaders(),
             dataType: 'json',
             data: {grant_type: 'password', username: login, password: password}
         }).then((data) => {
             this.restApiToken = data.access_token;
-            this.userName = login;
-            this.loginCallbacks.fire();
         });
     }
 
     logout() {
-        this.userName = null;
         var ajaxSettings = {
             type: 'POST',
             url: this.apiUrl + 'oauth/revoke',
             data: {token: this.restApiToken},
-            headers: {
-                "Authorization": "Basic Y2xpZW50OnNlY3JldA==" //todo minaev config
-            }
+            headers: this._getBasicAuthHeaders()
         };
         sessionStorage.removeItem('cubaAccessToken');
         sessionStorage.removeItem('cubaUserName');
         return $.ajax(ajaxSettings);
     }
 
-    onLogin(cb) {
-        this.loginCallbacks.add(cb);
-    }
-
     loadEntities(metaClass, view = '_local', sort = null) {
-        var opts = {view: view};
+        var opts:any = {view: view};
         if (sort) {
             opts.sort = sort;
         }
@@ -99,8 +75,14 @@ class Cuba {
         return this._ajax('GET', 'userInfo', null);
     }
 
+    _getBasicAuthHeaders() {
+        return {
+            "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
+        };
+    }
+
     _ajax(type, path, data) {
-        var ajaxSettings = {
+        var ajaxSettings:any = {
             type: type,
             url: this.apiUrl + path,
             data: data,

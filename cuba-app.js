@@ -1,3 +1,4 @@
+/// <reference path="../bower_components/polymer-ts/polymer-ts.d.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -22,7 +23,7 @@ var CubaApp = (function (_super) {
         this.cubaApp.apiUrl = this.apiUrl;
     };
     __decorate([
-        property({ type: String, value: "http://localhost:8080/app/dispatch/api/", observer: "_apiUrlChanged" })
+        property({ type: String, observer: "_apiUrlChanged" })
     ], CubaApp.prototype, "apiUrl", void 0);
     CubaApp = __decorate([
         component("cuba-app")
