@@ -4,7 +4,8 @@ class Cuba {
 
     constructor (public apiUrl = 'http://localhost:8080/app/rest/v2/',
                  public restClientId = 'client',
-                 public restClientSecret = 'secret') {
+                 public restClientSecret = 'secret',
+                 private loginCallbacks = $.Callbacks()) {
     }
 
     get restApiToken() {
@@ -24,7 +25,12 @@ class Cuba {
             data: {grant_type: 'password', username: login, password: password}
         }).then((data) => {
             this.restApiToken = data.access_token;
+            this.loginCallbacks.fire();
         });
+    }
+
+    onLogin(cb) {
+        this.loginCallbacks.add(cb);
     }
 
     logout() {
