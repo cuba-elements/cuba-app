@@ -1,11 +1,13 @@
 var Cuba = (function () {
-    function Cuba(apiUrl, restClientId, restClientSecret) {
+    function Cuba(apiUrl, restClientId, restClientSecret, loginCallbacks) {
         if (apiUrl === void 0) { apiUrl = 'http://localhost:8080/app/rest/v2/'; }
         if (restClientId === void 0) { restClientId = 'client'; }
         if (restClientSecret === void 0) { restClientSecret = 'secret'; }
+        if (loginCallbacks === void 0) { loginCallbacks = $.Callbacks(); }
         this.apiUrl = apiUrl;
         this.restClientId = restClientId;
         this.restClientSecret = restClientSecret;
+        this.loginCallbacks = loginCallbacks;
     }
     Object.defineProperty(Cuba.prototype, "restApiToken", {
         get: function () {
@@ -27,7 +29,11 @@ var Cuba = (function () {
             data: { grant_type: 'password', username: login, password: password }
         }).then(function (data) {
             _this.restApiToken = data.access_token;
+            _this.loginCallbacks.fire();
         });
+    };
+    Cuba.prototype.onLogin = function (cb) {
+        this.loginCallbacks.add(cb);
     };
     Cuba.prototype.logout = function () {
         var ajaxSettings = {

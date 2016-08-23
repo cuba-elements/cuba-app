@@ -3,9 +3,11 @@ declare class Cuba {
     apiUrl: string;
     restClientId: string;
     restClientSecret: string;
-    constructor(apiUrl?: string, restClientId?: string, restClientSecret?: string);
+    private loginCallbacks;
+    constructor(apiUrl?: string, restClientId?: string, restClientSecret?: string, loginCallbacks?: any);
     restApiToken: any;
     login(login: any, password: any): any;
+    onLogin(cb: any): void;
     logout(): any;
     loadEntities(metaClass: any, view?: string, sort?: any): any;
     loadEntity(metaClass: any, id: any, view?: string): any;
