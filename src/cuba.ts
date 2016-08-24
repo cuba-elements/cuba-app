@@ -1,22 +1,22 @@
-declare let $: any;
+declare let $:any;
 
 class Cuba {
 
-    constructor (public apiUrl = 'http://localhost:8080/app/rest/v2/',
-                 public restClientId = 'client',
-                 public restClientSecret = 'secret',
-                 private loginCallbacks = $.Callbacks()) {
+    constructor(public apiUrl = 'http://localhost:8080/app/rest/v2/',
+                public restClientId = 'client',
+                public restClientSecret = 'secret',
+                private loginCallbacks = $.Callbacks()) {
     }
 
-    get restApiToken() {
+    get restApiToken():string {
         return sessionStorage.getItem('cubaAccessToken');
     }
 
-    set restApiToken(token) {
+    set restApiToken(token:string) {
         sessionStorage.setItem('cubaAccessToken', token);
     }
 
-    login(login, password) {
+    login(login:string, password:string):Promise<{access_token:string}> {
         return $.ajax({
             url: this.apiUrl + 'oauth/token',
             type: 'POST',
@@ -29,11 +29,11 @@ class Cuba {
         });
     }
 
-    onLogin(cb) {
+    onLogin(cb:Function) {
         this.loginCallbacks.add(cb);
     }
 
-    logout() {
+    logout():Promise<any> {
         var ajaxSettings = {
             type: 'POST',
             url: this.apiUrl + 'oauth/revoke',
@@ -45,43 +45,47 @@ class Cuba {
         return $.ajax(ajaxSettings);
     }
 
-    loadEntities(metaClass, view = '_local', sort = null) {
+    loadEntities(entityName, view = '_local', sort = null):Promise<any[]> {
         var opts:any = {view: view};
         if (sort) {
             opts.sort = sort;
         }
-        return this._ajax('GET', 'entities/' + metaClass, opts);
+        return this._ajax('GET', 'entities/' + entityName, opts);
     }
 
-    loadEntity(metaClass, id, view = '_local') {
-        return this._ajax('GET', 'entities/' + metaClass + '/' + id,  {view: view});
+    loadEntity(entityName, id, view = '_local'):Promise<any> {
+        return this._ajax('GET', 'entities/' + entityName + '/' + id, {view: view});
     }
 
-    commitEntity(metaClass, entity) {
+    commitEntity(entityName:string, entity:any):Promise<any> {
         if (entity.id) {
-            return this._ajax('PUT', 'entities/' + metaClass + '/' + entity.id, JSON.stringify(entity));
+            return this._ajax('PUT', 'entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
         } else {
-            return this._ajax('POST', 'entities/' + metaClass, JSON.stringify(entity));
+            return this._ajax('POST', 'entities/' + entityName, JSON.stringify(entity));
         }
     }
 
-    loadMetadata() {
+    invokeService(serviceName:string, methodName:string, params:any):Promise<any> {
+        return this._ajax('POST', 'service/' + serviceName + '/' + methodName, JSON.stringify(params));
+    }
+
+    loadMetadata():Promise<any> {
         return this._ajax('GET', 'metadata/entities', null);
     }
 
-    loadEntityMetadata(metaClass) {
-        return this._ajax('GET', 'metadata/entities' + '/' + metaClass, null);
+    loadEntityMetadata(entityName:string):Promise<any> {
+        return this._ajax('GET', 'metadata/entities' + '/' + entityName, null);
     }
 
-    getPermissions() {
+    getPermissions():Promise<any> {
         return this._ajax('GET', 'permissions', null);
     }
 
-    getUserInfo() {
+    getUserInfo():Promise<any> {
         return this._ajax('GET', 'userInfo', null);
     }
 
-    _getBasicAuthHeaders() {
+    _getBasicAuthHeaders(): {[header:string]:string} {
         return {
             "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
         };
