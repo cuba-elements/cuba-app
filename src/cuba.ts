@@ -66,7 +66,7 @@ class Cuba {
     }
 
     invokeService(serviceName:string, methodName:string, params:any):Promise<any> {
-        return this._ajax('POST', 'service/' + serviceName + '/' + methodName, JSON.stringify(params));
+        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
     }
 
     loadMetadata():Promise<any> {

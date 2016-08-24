@@ -56,7 +56,7 @@ class Cuba {
         }
     }
     invokeService(serviceName, methodName, params) {
-        return this._ajax('POST', 'service/' + serviceName + '/' + methodName, JSON.stringify(params));
+        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
     }
     loadMetadata() {
         return this._ajax('GET', 'metadata/entities', null);
