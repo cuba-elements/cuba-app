@@ -6,10 +6,10 @@ class Cuba {
         this.loginCallbacks = loginCallbacks;
     }
     get restApiToken() {
-        return sessionStorage.getItem('cubaAccessToken');
+        return localStorage.getItem('cubaAccessToken');
     }
     set restApiToken(token) {
-        sessionStorage.setItem('cubaAccessToken', token);
+        localStorage.setItem('cubaAccessToken', token);
     }
     login(login, password) {
         return $.ajax({
@@ -33,8 +33,8 @@ class Cuba {
             data: { token: this.restApiToken },
             headers: this._getBasicAuthHeaders()
         };
-        sessionStorage.removeItem('cubaAccessToken');
-        sessionStorage.removeItem('cubaUserName');
+        localStorage.removeItem('cubaAccessToken');
+        localStorage.removeItem('cubaUserName');
         return $.ajax(ajaxSettings);
     }
     loadEntities(entityName, view = '_local', sort = null) {
