@@ -79,11 +79,13 @@ class Cuba {
         var ajaxSettings = {
             type: type,
             url: this.apiUrl + path,
-            data: data,
-            headers: {
-                "Authorization": "Bearer " + this.restApiToken
-            }
+            data: data
         };
+        if (this.restApiToken) {
+            ajaxSettings.headers = {
+                "Authorization": "Bearer " + this.restApiToken
+            };
+        }
         if (type != 'GET') {
             ajaxSettings.contentType = 'application/json';
         }
