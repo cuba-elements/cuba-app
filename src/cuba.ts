@@ -1,22 +1,29 @@
-declare let $: any;
+///<reference path="../typings/index.d.ts" />
 
 class Cuba {
 
+    static REST_TOKEN_STORAGE_KEY = 'cubaAccessToken';
+    static USER_NAME_STORAGE_KEY = 'cubaUserName';
+
+    private loginCallbacks: JQueryCallback;
+    private tokenExpiryCallbacks: JQueryCallback;
+
     constructor(public apiUrl = 'http://localhost:8080/app/rest/v2/',
                 public restClientId = 'client',
-                public restClientSecret = 'secret',
-                private loginCallbacks = $.Callbacks()) {
+                public restClientSecret = 'secret') {
+        this.loginCallbacks = $.Callbacks();
+        this.tokenExpiryCallbacks = $.Callbacks();
     }
 
     get restApiToken(): string {
-        return localStorage.getItem('cubaAccessToken');
+        return localStorage.getItem(Cuba.REST_TOKEN_STORAGE_KEY);
     }
 
     set restApiToken(token: string) {
-        localStorage.setItem('cubaAccessToken', token);
+        localStorage.setItem(Cuba.REST_TOKEN_STORAGE_KEY, token);
     }
 
-    login(login: string, password: string): Promise<{access_token: string}> {
+    login(login: string, password: string): JQueryPromise<{access_token: string}> {
         return $.ajax({
             url: this.apiUrl + 'oauth/token',
             type: 'POST',
@@ -33,19 +40,22 @@ class Cuba {
         this.loginCallbacks.add(cb);
     }
 
-    logout(): Promise<any> {
+    logout(): JQueryPromise<any> {
         var ajaxSettings = {
             type: 'POST',
             url: this.apiUrl + 'oauth/revoke',
             data: {token: this.restApiToken},
             headers: this._getBasicAuthHeaders()
         };
-        localStorage.removeItem('cubaAccessToken');
-        localStorage.removeItem('cubaUserName');
+        Cuba.clearAuthData();
         return $.ajax(ajaxSettings);
     }
 
-    loadEntities(entityName, view = '_local', sort = null): Promise<any[]> {
+    onTokenExpiry(cb): void {
+        this.tokenExpiryCallbacks.add(cb);
+    }
+
+    loadEntities(entityName, view = '_local', sort = null): JQueryPromise<any[]> {
         var opts: any = {view: view};
         if (sort) {
             opts.sort = sort;
@@ -53,11 +63,11 @@ class Cuba {
         return this._ajax('GET', 'entities/' + entityName, opts);
     }
 
-    loadEntity(entityName, id, view = '_local'): Promise<any> {
+    loadEntity(entityName, id, view = '_local'): JQueryPromise<any> {
         return this._ajax('GET', 'entities/' + entityName + '/' + id, {view: view});
     }
 
-    commitEntity(entityName: string, entity: any): Promise<any> {
+    commitEntity(entityName: string, entity: any): JQueryPromise<any> {
         if (entity.id) {
             return this._ajax('PUT', 'entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
         } else {
@@ -65,23 +75,23 @@ class Cuba {
         }
     }
 
-    invokeService(serviceName: string, methodName: string, params: any): Promise<any> {
+    invokeService(serviceName: string, methodName: string, params: any): JQueryPromise<any> {
         return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
     }
 
-    loadMetadata(): Promise<any> {
+    loadMetadata(): JQueryPromise<any> {
         return this._ajax('GET', 'metadata/entities', null);
     }
 
-    loadEntityMetadata(entityName: string): Promise<any> {
+    loadEntityMetadata(entityName: string): JQueryPromise<any> {
         return this._ajax('GET', 'metadata/entities' + '/' + entityName, null);
     }
 
-    getPermissions(): Promise<any> {
+    getPermissions(): JQueryPromise<any> {
         return this._ajax('GET', 'permissions', null);
     }
 
-    getUserInfo(): Promise<any> {
+    getUserInfo(): JQueryPromise<any> {
         return this._ajax('GET', 'userInfo', null);
     }
 
@@ -91,7 +101,12 @@ class Cuba {
         };
     }
 
-    _ajax(type, path, data) {
+    static clearAuthData(): void {
+        localStorage.removeItem(Cuba.REST_TOKEN_STORAGE_KEY);
+        localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
+    }
+
+    _ajax(type, path, data): JQueryXHR {
         var ajaxSettings: any = {
             type: type,
             url: this.apiUrl + path,
@@ -105,6 +120,19 @@ class Cuba {
         if (type != 'GET') {
             ajaxSettings.contentType = 'application/json';
         }
-        return $.ajax(ajaxSettings);
+        var ajaxPromise = $.ajax(ajaxSettings);
+        ajaxPromise.then(null, (xhr: JQueryXHR) => {
+            if (Cuba.isTokenExpiredResponse(xhr)) {
+                Cuba.clearAuthData();
+                this.tokenExpiryCallbacks.fire();
+            }
+        });
+        return ajaxPromise;
+    }
+
+    static isTokenExpiredResponse(resp: JQueryXHR): boolean {
+        return resp.status === 401
+            && resp.responseJSON
+            && resp.responseJSON.error === 'invalid_token';
     }
 }

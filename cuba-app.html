@@ -20,25 +20,28 @@
   <script>
     (function(){
       "use strict";
+      window.cubaApp = new Cuba();
 
       Polymer({
-
         is: 'cuba-app',
-
         properties: {
           apiUrl: {
             type: String,
             observer: '_apiUrlChanged'
           }
         },
-
-        _apiUrlChanged() {
+        created: function() {
+          window.cubaApp.onTokenExpiry(function() {
+            this.fire('cuba-token-expired');
+          }.bind(this));
+        },
+        _apiUrlChanged: function() {
           cubaApp.apiUrl = this.apiUrl;
         }
 
       });
 
-      window.cubaApp = new Cuba();
+
     })();
   </script>
 </dom-module>
