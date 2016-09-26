@@ -79,6 +79,10 @@ class Cuba {
         return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
     }
 
+    query(entityName: string, queryName: string, params?: any): JQueryPromise<any> {
+        return this._ajax('POST', 'queries/' + entityName + '/' + queryName, JSON.stringify(params));
+    }
+
     loadMetadata(): JQueryPromise<any> {
         return this._ajax('GET', 'metadata/entities', null);
     }

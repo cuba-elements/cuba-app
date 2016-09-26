@@ -73,6 +73,9 @@ var Cuba = (function () {
     Cuba.prototype.invokeService = function (serviceName, methodName, params) {
         return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
     };
+    Cuba.prototype.query = function (entityName, queryName, params) {
+        return this._ajax('POST', 'queries/' + entityName + '/' + queryName, JSON.stringify(params));
+    };
     Cuba.prototype.loadMetadata = function () {
         return this._ajax('GET', 'metadata/entities', null);
     };

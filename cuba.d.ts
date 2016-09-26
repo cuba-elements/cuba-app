@@ -19,6 +19,7 @@ declare class Cuba {
     loadEntity(entityName: any, id: any, view?: string): JQueryPromise<any>;
     commitEntity(entityName: string, entity: any): JQueryPromise<any>;
     invokeService(serviceName: string, methodName: string, params: any): JQueryPromise<any>;
+    query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;
     loadMetadata(): JQueryPromise<any>;
     loadEntityMetadata(entityName: string): JQueryPromise<any>;
     getPermissions(): JQueryPromise<any>;
