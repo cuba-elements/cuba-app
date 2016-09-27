@@ -102,7 +102,8 @@ var Cuba = (function () {
         var ajaxSettings = {
             type: type,
             url: this.apiUrl + path,
-            data: data
+            data: data,
+            dataType: 'json'
         };
         if (this.restApiToken) {
             ajaxSettings.headers = {

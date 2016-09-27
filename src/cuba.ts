@@ -114,7 +114,8 @@ class Cuba {
         var ajaxSettings: any = {
             type: type,
             url: this.apiUrl + path,
-            data: data
+            data: data,
+            dataType: 'json'
         };
         if (this.restApiToken) {
             ajaxSettings.headers = {
