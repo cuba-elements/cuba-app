@@ -70,8 +70,8 @@ var Cuba = (function () {
             return this._ajax('POST', 'entities/' + entityName, JSON.stringify(entity));
         }
     };
-    Cuba.prototype.invokeService = function (serviceName, methodName, params) {
-        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
+    Cuba.prototype.invokeService = function (serviceName, methodName, params, ajaxSettings) {
+        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
     };
     Cuba.prototype.query = function (entityName, queryName, params) {
         return this._ajax('GET', 'queries/' + entityName + '/' + queryName, params);
@@ -97,23 +97,23 @@ var Cuba = (function () {
         localStorage.removeItem(Cuba.REST_TOKEN_STORAGE_KEY);
         localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
     };
-    Cuba.prototype._ajax = function (type, path, data) {
+    Cuba.prototype._ajax = function (type, path, data, ajaxSettings) {
         var _this = this;
-        var ajaxSettings = {
+        var settings = {
             type: type,
             url: this.apiUrl + path,
             data: data,
             dataType: 'json'
         };
         if (this.restApiToken) {
-            ajaxSettings.headers = {
+            settings.headers = {
                 "Authorization": "Bearer " + this.restApiToken
             };
         }
         if (type != 'GET') {
-            ajaxSettings.contentType = 'application/json';
+            settings.contentType = 'application/json';
         }
-        var ajaxPromise = $.ajax(ajaxSettings);
+        var ajaxPromise = $.ajax($.extend(settings, ajaxSettings));
         ajaxPromise.then(null, function (xhr) {
             if (Cuba.isTokenExpiredResponse(xhr)) {
                 Cuba.clearAuthData();

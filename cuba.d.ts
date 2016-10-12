@@ -18,7 +18,7 @@ declare class Cuba {
     loadEntities(entityName: any, view?: string, sort?: any): JQueryPromise<any[]>;
     loadEntity(entityName: any, id: any, view?: string): JQueryPromise<any>;
     commitEntity(entityName: string, entity: any): JQueryPromise<any>;
-    invokeService(serviceName: string, methodName: string, params: any): JQueryPromise<any>;
+    invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;
     loadMetadata(): JQueryPromise<any>;
     loadEntityMetadata(entityName: string): JQueryPromise<any>;
@@ -28,6 +28,6 @@ declare class Cuba {
         [header: string]: string;
     };
     static clearAuthData(): void;
-    _ajax(type: any, path: any, data: any): JQueryXHR;
+    _ajax(type: any, path: any, data?: any, ajaxSettings?: JQueryAjaxSettings): JQueryXHR;
     static isTokenExpiredResponse(resp: JQueryXHR): boolean;
 }

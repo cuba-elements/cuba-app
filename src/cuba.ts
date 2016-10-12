@@ -75,8 +75,8 @@ class Cuba {
         }
     }
 
-    invokeService(serviceName: string, methodName: string, params: any): JQueryPromise<any> {
-        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params));
+    invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any> {
+        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
     }
 
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any> {
@@ -110,22 +110,22 @@ class Cuba {
         localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
     }
 
-    _ajax(type, path, data): JQueryXHR {
-        var ajaxSettings: any = {
+    _ajax(type, path, data?, ajaxSettings?: JQueryAjaxSettings): JQueryXHR {
+        var settings: any = {
             type: type,
             url: this.apiUrl + path,
             data: data,
             dataType: 'json'
         };
         if (this.restApiToken) {
-            ajaxSettings.headers = {
+            settings.headers = {
                 "Authorization": "Bearer " + this.restApiToken
             }
         }
         if (type != 'GET') {
-            ajaxSettings.contentType = 'application/json';
+            settings.contentType = 'application/json';
         }
-        var ajaxPromise = $.ajax(ajaxSettings);
+        var ajaxPromise = $.ajax($.extend(settings, ajaxSettings));
         ajaxPromise.then(null, (xhr: JQueryXHR) => {
             if (Cuba.isTokenExpiredResponse(xhr)) {
                 Cuba.clearAuthData();
