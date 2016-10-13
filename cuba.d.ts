@@ -15,8 +15,15 @@ declare class Cuba {
     onLogin(cb: Function): void;
     logout(): JQueryPromise<any>;
     onTokenExpiry(cb: any): void;
-    loadEntities(entityName: any, view?: string, sort?: any): JQueryPromise<any[]>;
-    loadEntity(entityName: any, id: any, view?: string): JQueryPromise<any>;
+    loadEntities(entityName: any, options?: {
+        view?: string;
+        sort?: string;
+        limit?: number;
+        offset?: number;
+    }): JQueryPromise<any[]>;
+    loadEntity(entityName: any, id: any, options?: {
+        view?: string;
+    }): JQueryPromise<any>;
     commitEntity(entityName: string, entity: any): JQueryPromise<any>;
     invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;

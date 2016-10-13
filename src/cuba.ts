@@ -55,16 +55,12 @@ class Cuba {
         this.tokenExpiryCallbacks.add(cb);
     }
 
-    loadEntities(entityName, view = '_local', sort = null): JQueryPromise<any[]> {
-        var opts: any = {view: view};
-        if (sort) {
-            opts.sort = sort;
-        }
-        return this._ajax('GET', 'entities/' + entityName, opts);
+    loadEntities(entityName, options?: {view?: string, sort?: string, limit?: number, offset?: number}): JQueryPromise<any[]> {
+        return this._ajax('GET', 'entities/' + entityName, options);
     }
 
-    loadEntity(entityName, id, view = '_local'): JQueryPromise<any> {
-        return this._ajax('GET', 'entities/' + entityName + '/' + id, {view: view});
+    loadEntity(entityName, id, options?: {view?: string}): JQueryPromise<any> {
+        return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
     }
 
     commitEntity(entityName: string, entity: any): JQueryPromise<any> {

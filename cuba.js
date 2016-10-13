@@ -49,18 +49,11 @@ var Cuba = (function () {
     Cuba.prototype.onTokenExpiry = function (cb) {
         this.tokenExpiryCallbacks.add(cb);
     };
-    Cuba.prototype.loadEntities = function (entityName, view, sort) {
-        if (view === void 0) { view = '_local'; }
-        if (sort === void 0) { sort = null; }
-        var opts = { view: view };
-        if (sort) {
-            opts.sort = sort;
-        }
-        return this._ajax('GET', 'entities/' + entityName, opts);
+    Cuba.prototype.loadEntities = function (entityName, options) {
+        return this._ajax('GET', 'entities/' + entityName, options);
     };
-    Cuba.prototype.loadEntity = function (entityName, id, view) {
-        if (view === void 0) { view = '_local'; }
-        return this._ajax('GET', 'entities/' + entityName + '/' + id, { view: view });
+    Cuba.prototype.loadEntity = function (entityName, id, options) {
+        return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
     };
     Cuba.prototype.commitEntity = function (entityName, entity) {
         if (entity.id) {
