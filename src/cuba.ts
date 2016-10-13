@@ -8,7 +8,7 @@ class Cuba {
     private loginCallbacks: JQueryCallback;
     private tokenExpiryCallbacks: JQueryCallback;
 
-    constructor(public apiUrl = 'http://localhost:8080/app/rest/v2/',
+    constructor(public apiUrl = '/app/rest/v2/',
                 public restClientId = 'client',
                 public restClientSecret = 'secret') {
         this.loginCallbacks = $.Callbacks();

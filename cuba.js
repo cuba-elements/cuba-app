@@ -1,7 +1,7 @@
 ///<reference path="../typings/index.d.ts" />
 var Cuba = (function () {
     function Cuba(apiUrl, restClientId, restClientSecret) {
-        if (apiUrl === void 0) { apiUrl = 'http://localhost:8080/app/rest/v2/'; }
+        if (apiUrl === void 0) { apiUrl = '/app/rest/v2/'; }
         if (restClientId === void 0) { restClientId = 'client'; }
         if (restClientSecret === void 0) { restClientSecret = 'secret'; }
         this.apiUrl = apiUrl;
