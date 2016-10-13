@@ -1,0 +1,56 @@
+<script>
+  CubaDataLoadingBehavior = {
+
+    /**
+     * Fired when data loading failed
+     *
+     * @event load-error
+     */
+
+    properties: {
+      auto: {
+        type: Boolean,
+        value: true
+      },
+      data: {
+        notify: true
+      },
+      debounceDuration: {
+        type: Number,
+        value: 10,
+        notify: true
+      }
+    },
+
+    load: function() {
+      this.debounce('loading', function() {
+        if (this.loadRequest) {
+          this.loadRequest.abort();
+        }
+        this.loadRequest = this._load();
+        this.loadRequest.then(
+            function(data) {
+              this.data = data;
+            }.bind(this),
+            function () {
+              this.fire("load-error");
+            }.bind(this)
+        );
+      }, this.debounceDuration);
+    },
+
+    _reload: function() {
+      if (this.auto) {
+        this.load();
+      }
+    },
+
+    /**
+     * This method has to be overridden to contain real loading logic
+     */
+    _load: function() {
+      throw new Error('Missing data loading implementation')
+    }
+
+  }
+</script>
