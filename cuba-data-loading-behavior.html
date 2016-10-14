@@ -6,7 +6,6 @@
      *
      * @event load-error
      */
-
     properties: {
       auto: {
         type: Boolean,
@@ -23,20 +22,25 @@
     },
 
     load: function() {
+      var defer = $.Deferred();
       this.debounce('loading', function() {
         if (this.loadRequest) {
           this.loadRequest.abort();
+          defer.reject();
         }
         this.loadRequest = this._load();
         this.loadRequest.then(
             function(data) {
               this.data = data;
+              defer.resolve(data);
             }.bind(this),
             function () {
               this.fire("load-error");
+              defer.reject();
             }.bind(this)
         );
       }, this.debounceDuration);
+      return defer.promise;
     },
 
     _reload: function() {
