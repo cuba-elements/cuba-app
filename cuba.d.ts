@@ -24,6 +24,7 @@ declare class Cuba {
     loadEntity(entityName: any, id: any, options?: {
         view?: string;
     }): JQueryPromise<any>;
+    deleteEntity(entityName: any, id: any): JQueryPromise<any>;
     commitEntity(entityName: string, entity: any): JQueryPromise<any>;
     invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;

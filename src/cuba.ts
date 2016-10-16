@@ -63,6 +63,10 @@ class Cuba {
         return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
     }
 
+    deleteEntity(entityName, id): JQueryPromise<any> {
+        return this._ajax('DELETE', 'entities/' + entityName + '/' + id);
+    }
+
     commitEntity(entityName: string, entity: any): JQueryPromise<any> {
         if (entity.id) {
             return this._ajax('PUT', 'entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
