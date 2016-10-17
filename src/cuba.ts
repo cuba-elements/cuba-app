@@ -64,7 +64,7 @@ class Cuba {
     }
 
     deleteEntity(entityName, id): JQueryPromise<any> {
-        return this._ajax('DELETE', 'entities/' + entityName + '/' + id);
+        return this._ajax('DELETE', 'entities/' + entityName + '/' + id, null, {dataType: null});
     }
 
     commitEntity(entityName: string, entity: any): JQueryPromise<any> {

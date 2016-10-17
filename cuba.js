@@ -56,7 +56,7 @@ var Cuba = (function () {
         return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
     };
     Cuba.prototype.deleteEntity = function (entityName, id) {
-        return this._ajax('DELETE', 'entities/' + entityName + '/' + id);
+        return this._ajax('DELETE', 'entities/' + entityName + '/' + id, null, { dataType: null });
     };
     Cuba.prototype.commitEntity = function (entityName, entity) {
         if (entity.id) {
