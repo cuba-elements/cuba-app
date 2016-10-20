@@ -8,7 +8,7 @@ class Cuba {
     private loginCallbacks: JQueryCallback;
     private tokenExpiryCallbacks: JQueryCallback;
 
-    constructor(public apiUrl = '/app/rest/v2/',
+    constructor(public apiUrl = '/app/rest/',
                 public restClientId = 'client',
                 public restClientSecret = 'secret') {
         this.loginCallbacks = $.Callbacks();
@@ -25,7 +25,7 @@ class Cuba {
 
     login(login: string, password: string): JQueryPromise<{access_token: string}> {
         return $.ajax({
-            url: this.apiUrl + 'oauth/token',
+            url: this.apiUrl + 'v2/oauth/token',
             type: 'POST',
             headers: this._getBasicAuthHeaders(),
             dataType: 'json',
@@ -43,7 +43,7 @@ class Cuba {
     logout(): JQueryPromise<any> {
         var ajaxSettings = {
             type: 'POST',
-            url: this.apiUrl + 'oauth/revoke',
+            url: this.apiUrl + 'v2/oauth/revoke',
             data: {token: this.restApiToken},
             headers: this._getBasicAuthHeaders()
         };
@@ -56,47 +56,47 @@ class Cuba {
     }
 
     loadEntities(entityName, options?: {view?: string, sort?: string, limit?: number, offset?: number}): JQueryPromise<any[]> {
-        return this._ajax('GET', 'entities/' + entityName, options);
+        return this.ajax('GET', 'v2/entities/' + entityName, options);
     }
 
     loadEntity(entityName, id, options?: {view?: string}): JQueryPromise<any> {
-        return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
+        return this.ajax('GET', 'v2/entities/' + entityName + '/' + id, options);
     }
 
     deleteEntity(entityName, id): JQueryPromise<any> {
-        return this._ajax('DELETE', 'entities/' + entityName + '/' + id, null, {dataType: null});
+        return this.ajax('DELETE', 'v2/entities/' + entityName + '/' + id, null, {dataType: null});
     }
 
     commitEntity(entityName: string, entity: any): JQueryPromise<any> {
         if (entity.id) {
-            return this._ajax('PUT', 'entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
+            return this.ajax('PUT', 'v2/entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
         } else {
-            return this._ajax('POST', 'entities/' + entityName, JSON.stringify(entity));
+            return this.ajax('POST', 'v2/entities/' + entityName, JSON.stringify(entity));
         }
     }
 
     invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any> {
-        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
+        return this.ajax('POST', 'v2/services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
     }
 
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any> {
-        return this._ajax('GET', 'queries/' + entityName + '/' + queryName, params);
+        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params);
     }
 
     loadMetadata(): JQueryPromise<any> {
-        return this._ajax('GET', 'metadata/entities', null);
+        return this.ajax('GET', 'v2/metadata/entities', null);
     }
 
     loadEntityMetadata(entityName: string): JQueryPromise<any> {
-        return this._ajax('GET', 'metadata/entities' + '/' + entityName, null);
+        return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
     }
 
     getPermissions(): JQueryPromise<any> {
-        return this._ajax('GET', 'permissions', null);
+        return this.ajax('GET', 'v2/permissions', null);
     }
 
     getUserInfo(): JQueryPromise<any> {
-        return this._ajax('GET', 'userInfo', null);
+        return this.ajax('GET', 'v2/userInfo', null);
     }
 
     _getBasicAuthHeaders(): {[header: string]: string} {
@@ -110,7 +110,7 @@ class Cuba {
         localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
     }
 
-    _ajax(type, path, data?, ajaxSettings?: JQueryAjaxSettings): JQueryXHR {
+    ajax(type, path, data?, ajaxSettings?: JQueryAjaxSettings): JQueryXHR {
         var settings: any = {
             type: type,
             url: this.apiUrl + path,

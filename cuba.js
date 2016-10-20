@@ -1,7 +1,7 @@
 ///<reference path="../typings/index.d.ts" />
 var Cuba = (function () {
     function Cuba(apiUrl, restClientId, restClientSecret) {
-        if (apiUrl === void 0) { apiUrl = '/app/rest/v2/'; }
+        if (apiUrl === void 0) { apiUrl = '/app/rest/'; }
         if (restClientId === void 0) { restClientId = 'client'; }
         if (restClientSecret === void 0) { restClientSecret = 'secret'; }
         this.apiUrl = apiUrl;
@@ -23,7 +23,7 @@ var Cuba = (function () {
     Cuba.prototype.login = function (login, password) {
         var _this = this;
         return $.ajax({
-            url: this.apiUrl + 'oauth/token',
+            url: this.apiUrl + 'v2/oauth/token',
             type: 'POST',
             headers: this._getBasicAuthHeaders(),
             dataType: 'json',
@@ -39,7 +39,7 @@ var Cuba = (function () {
     Cuba.prototype.logout = function () {
         var ajaxSettings = {
             type: 'POST',
-            url: this.apiUrl + 'oauth/revoke',
+            url: this.apiUrl + 'v2/oauth/revoke',
             data: { token: this.restApiToken },
             headers: this._getBasicAuthHeaders()
         };
@@ -50,39 +50,39 @@ var Cuba = (function () {
         this.tokenExpiryCallbacks.add(cb);
     };
     Cuba.prototype.loadEntities = function (entityName, options) {
-        return this._ajax('GET', 'entities/' + entityName, options);
+        return this.ajax('GET', 'v2/entities/' + entityName, options);
     };
     Cuba.prototype.loadEntity = function (entityName, id, options) {
-        return this._ajax('GET', 'entities/' + entityName + '/' + id, options);
+        return this.ajax('GET', 'v2/entities/' + entityName + '/' + id, options);
     };
     Cuba.prototype.deleteEntity = function (entityName, id) {
-        return this._ajax('DELETE', 'entities/' + entityName + '/' + id, null, { dataType: null });
+        return this.ajax('DELETE', 'v2/entities/' + entityName + '/' + id, null, { dataType: null });
     };
     Cuba.prototype.commitEntity = function (entityName, entity) {
         if (entity.id) {
-            return this._ajax('PUT', 'entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
+            return this.ajax('PUT', 'v2/entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
         }
         else {
-            return this._ajax('POST', 'entities/' + entityName, JSON.stringify(entity));
+            return this.ajax('POST', 'v2/entities/' + entityName, JSON.stringify(entity));
         }
     };
     Cuba.prototype.invokeService = function (serviceName, methodName, params, ajaxSettings) {
-        return this._ajax('POST', 'services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
+        return this.ajax('POST', 'v2/services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
     };
     Cuba.prototype.query = function (entityName, queryName, params) {
-        return this._ajax('GET', 'queries/' + entityName + '/' + queryName, params);
+        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params);
     };
     Cuba.prototype.loadMetadata = function () {
-        return this._ajax('GET', 'metadata/entities', null);
+        return this.ajax('GET', 'v2/metadata/entities', null);
     };
     Cuba.prototype.loadEntityMetadata = function (entityName) {
-        return this._ajax('GET', 'metadata/entities' + '/' + entityName, null);
+        return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
     };
     Cuba.prototype.getPermissions = function () {
-        return this._ajax('GET', 'permissions', null);
+        return this.ajax('GET', 'v2/permissions', null);
     };
     Cuba.prototype.getUserInfo = function () {
-        return this._ajax('GET', 'userInfo', null);
+        return this.ajax('GET', 'v2/userInfo', null);
     };
     Cuba.prototype._getBasicAuthHeaders = function () {
         return {
@@ -93,7 +93,7 @@ var Cuba = (function () {
         localStorage.removeItem(Cuba.REST_TOKEN_STORAGE_KEY);
         localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
     };
-    Cuba.prototype._ajax = function (type, path, data, ajaxSettings) {
+    Cuba.prototype.ajax = function (type, path, data, ajaxSettings) {
         var _this = this;
         var settings = {
             type: type,

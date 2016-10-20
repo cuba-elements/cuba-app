@@ -36,6 +36,6 @@ declare class Cuba {
         [header: string]: string;
     };
     static clearAuthData(): void;
-    _ajax(type: any, path: any, data?: any, ajaxSettings?: JQueryAjaxSettings): JQueryXHR;
+    ajax(type: any, path: any, data?: any, ajaxSettings?: JQueryAjaxSettings): JQueryXHR;
     static isTokenExpiredResponse(resp: JQueryXHR): boolean;
 }
