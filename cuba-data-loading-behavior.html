@@ -1,4 +1,14 @@
 <script>
+
+  /**
+   * In order to use this behavior:
+   * 1. _load method should be overridden. It must return jqXHR promise.
+   * 2. Call _reload method on meaningful properties changes/initialization i.e:
+   *
+   *  observers: ['_reload(serviceName, method, handleAs, auto)']
+   *
+   */
+
   CubaDataLoadingBehavior = {
 
     /**
@@ -50,7 +60,7 @@
     },
 
     /**
-     * This method has to be overridden to contain real loading logic
+     * This method has to be overridden to contain real loading logic.
      */
     _load: function() {
       throw new Error('Missing data loading implementation')
