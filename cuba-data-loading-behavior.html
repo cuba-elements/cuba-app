@@ -28,12 +28,18 @@
         type: Number,
         value: 10,
         notify: true
+      },
+      loading: {
+        type: Boolean,
+        notify: true,
+        readOnly: true
       }
     },
 
     load: function() {
       var defer = $.Deferred();
       this.debounce('loading', function() {
+        this._setLoading(true);
         if (this.loadRequest) {
           this.loadRequest.abort();
           defer.reject();
@@ -41,10 +47,12 @@
         this.loadRequest = this._load();
         this.loadRequest.then(
             function(data) {
+              this._setLoading(false);
               this.data = data;
               defer.resolve(data);
             }.bind(this),
             function () {
+              this._setLoading(false);
               this.fire("load-error");
               defer.reject();
             }.bind(this)
