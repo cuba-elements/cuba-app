@@ -1,0 +1,46 @@
+<script>
+
+  CubaFormBehavior = {
+
+    properties: {
+      serverErrors: {
+        type: Object,
+        notify: true,
+        readonly: true,
+        value: function() {
+          return {};
+        }
+      },
+      rawServerErrors: {
+        type: Array,
+        notify: true,
+        readonly: true,
+        value: function() {
+          return [];
+        }
+      }
+    },
+
+    _clearErrors: function() {
+      this.set("serverErrors", {});
+      this.set("rawServerErrors", []);
+    },
+
+    _handleError: function(resp) {
+      let erors = resp.responseJSON;
+      if (resp.status == 400 && erors && Array.isArray(erors)) {
+        this.set("rawServerErrors", erors);
+        for (let i = 0; i < erors.length; i++) {
+          let path = erors[i].path || "$global";
+          this._addError(path, erors[i].message)
+        }
+      }
+    },
+
+    _addError: function(path, errorMessage) {
+      this.serverErrors[path] ? this.serverErrors[path] += "; " + errorMessage : this.serverErrors[path] = errorMessage;
+      this.notifyPath("serverErrors." + path);
+    }
+  }
+
+</script>
