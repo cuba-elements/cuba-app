@@ -17,17 +17,20 @@
      * @event load-error
      */
     properties: {
+      /**
+       * If true - automatically loads data
+       */
       auto: {
         type: Boolean,
         value: true
       },
       data: {
-        notify: true
+        notify: true,
+        readOnly: true
       },
       debounceDuration: {
         type: Number,
-        value: 10,
-        notify: true
+        value: 10
       },
       loading: {
         type: Boolean,
@@ -36,6 +39,10 @@
       }
     },
 
+    /**
+     * Loads data.
+     * Returns jQuery promise.
+     */
     load: function() {
       var defer = $.Deferred();
       this.debounce('loading', function() {

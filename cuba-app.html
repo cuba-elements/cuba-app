@@ -1,8 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-`cuba-app` exposes `cubaApp` object to the global JS scope.
-
+The `cuba-app` element is used for initialization and configuration connection to CUBA REST API.
+Exposes `cubaApp` object to the global JS scope.
 Current implementation depends on jQuery.
 -->
 <dom-module id="cuba-app">
@@ -31,7 +31,8 @@ Current implementation depends on jQuery.
            */
           apiUrl: {
             type: String,
-            observer: '_apiUrlChanged'
+            observer: '_apiUrlChanged',
+            value: '/app/rest/'
           }
         },
         created: function() {
@@ -49,8 +50,8 @@ Current implementation depends on jQuery.
     })();
 
     /**
-     * Fired on attempt to access REST API with expired token.
-     * Usually it means that user relogin required. See `cuba-login`
+     * Fired on attempt to access REST API without or with expired token.
+     * Usually it means that user login required. See `cuba-login`
      *
      * @event cuba-token-expired
      */
