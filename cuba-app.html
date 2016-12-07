@@ -1,10 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-`cuba-app`
+`cuba-app` exposes `cubaApp` object to the global JS scope.
 
-
-@demo demo/index.html 
+Current implementation depends on jQuery.
 -->
 <dom-module id="cuba-app">
   <template>
@@ -25,6 +24,11 @@
       Polymer({
         is: 'cuba-app',
         properties: {
+
+          /**
+           * Connection URL to CUBA REST API v2.
+           * Trailing slash required.
+           */
           apiUrl: {
             type: String,
             observer: '_apiUrlChanged'
@@ -43,5 +47,12 @@
 
 
     })();
+
+    /**
+     * Fired on attempt to access REST API with expired token.
+     * Usually it means that user relogin required. See `cuba-login`
+     *
+     * @event cuba-token-expired
+     */
   </script>
 </dom-module>
