@@ -2,12 +2,10 @@
   "name": "cuba-app",
   "version": "0.0.2",
   "main": [
-    "cuba-app.html",
-    "cuba-data-loading-behavior.html",
-    "cuba-form-behavior.html"
+    "cuba-app.html"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.4.0",
+    "polymer": "Polymer/polymer#^1.7.0",
     "jquery": "^3.1.0"
   },
   "devDependencies": {
