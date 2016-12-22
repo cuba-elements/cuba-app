@@ -4,13 +4,15 @@ class Cuba {
 
     static REST_TOKEN_STORAGE_KEY = 'cubaAccessToken';
     static USER_NAME_STORAGE_KEY = 'cubaUserName';
+    static LOCALE_STORAGE_KEY = 'cubaLocale';
 
     private loginCallbacks: JQueryCallback;
     private tokenExpiryCallbacks: JQueryCallback;
 
     constructor(public apiUrl = '/app/rest/',
                 public restClientId = 'client',
-                public restClientSecret = 'secret') {
+                public restClientSecret = 'secret',
+                public defaultLocale = 'en') {
         this.loginCallbacks = $.Callbacks();
         this.tokenExpiryCallbacks = $.Callbacks();
     }
@@ -21,6 +23,15 @@ class Cuba {
 
     set restApiToken(token: string) {
         localStorage.setItem(Cuba.REST_TOKEN_STORAGE_KEY, token);
+    }
+
+    get locale(): string {
+        let storedLocale = localStorage.getItem(Cuba.LOCALE_STORAGE_KEY);
+        return storedLocale ? storedLocale : this.defaultLocale;
+    }
+
+    set locale(locale: string) {
+        localStorage.setItem(Cuba.LOCALE_STORAGE_KEY, locale);
     }
 
     login(login: string, password: string): JQueryPromise<{access_token: string}> {
@@ -87,6 +98,10 @@ class Cuba {
         return this.ajax('GET', 'v2/metadata/entities', null);
     }
 
+    loadEnums(): JQueryPromise<any> {
+        return this.ajax('GET', 'v2/metadata/enums', null);
+    }
+
     loadEntityMetadata(entityName: string): JQueryPromise<any> {
         return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
     }
@@ -101,6 +116,7 @@ class Cuba {
 
     _getBasicAuthHeaders(): {[header: string]: string} {
         return {
+            "Accept-Language": this.locale,
             "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
         };
     }
@@ -115,12 +131,13 @@ class Cuba {
             type: type,
             url: this.apiUrl + path,
             data: data,
-            dataType: 'json'
+            dataType: 'json',
+            headers: {
+                "Accept-Language": this.locale
+            }
         };
         if (this.restApiToken) {
-            settings.headers = {
-                "Authorization": "Bearer " + this.restApiToken
-            }
+            settings.headers["Authorization"] = "Bearer " + this.restApiToken
         }
         if (type != 'GET') {
             settings.contentType = 'application/json';

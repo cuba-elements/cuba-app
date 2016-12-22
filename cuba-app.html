@@ -15,6 +15,7 @@ Current implementation depends on jQuery.
     <content></content>
   </template>
   <script src="../jquery/dist/jquery.min.js"></script>
+  <script src="../rxjs/dist/rx.lite.js"></script>
   <script src="cuba.js"></script>
   <script>
     (function(){
@@ -43,10 +44,7 @@ Current implementation depends on jQuery.
         _apiUrlChanged: function() {
           cubaApp.apiUrl = this.apiUrl;
         }
-
       });
-
-
     })();
 
     /**

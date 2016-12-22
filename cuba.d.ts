@@ -3,12 +3,15 @@ declare class Cuba {
     apiUrl: string;
     restClientId: string;
     restClientSecret: string;
+    defaultLocale: string;
     static REST_TOKEN_STORAGE_KEY: string;
     static USER_NAME_STORAGE_KEY: string;
+    static LOCALE_STORAGE_KEY: string;
     private loginCallbacks;
     private tokenExpiryCallbacks;
-    constructor(apiUrl?: string, restClientId?: string, restClientSecret?: string);
+    constructor(apiUrl?: string, restClientId?: string, restClientSecret?: string, defaultLocale?: string);
     restApiToken: string;
+    locale: string;
     login(login: string, password: string): JQueryPromise<{
         access_token: string;
     }>;
@@ -29,6 +32,7 @@ declare class Cuba {
     invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;
     loadMetadata(): JQueryPromise<any>;
+    loadEnums(): JQueryPromise<any>;
     loadEntityMetadata(entityName: string): JQueryPromise<any>;
     getPermissions(): JQueryPromise<any>;
     getUserInfo(): JQueryPromise<any>;

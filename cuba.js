@@ -1,12 +1,14 @@
 ///<reference path="../typings/index.d.ts" />
 var Cuba = (function () {
-    function Cuba(apiUrl, restClientId, restClientSecret) {
+    function Cuba(apiUrl, restClientId, restClientSecret, defaultLocale) {
         if (apiUrl === void 0) { apiUrl = '/app/rest/'; }
         if (restClientId === void 0) { restClientId = 'client'; }
         if (restClientSecret === void 0) { restClientSecret = 'secret'; }
+        if (defaultLocale === void 0) { defaultLocale = 'en'; }
         this.apiUrl = apiUrl;
         this.restClientId = restClientId;
         this.restClientSecret = restClientSecret;
+        this.defaultLocale = defaultLocale;
         this.loginCallbacks = $.Callbacks();
         this.tokenExpiryCallbacks = $.Callbacks();
     }
@@ -16,6 +18,17 @@ var Cuba = (function () {
         },
         set: function (token) {
             localStorage.setItem(Cuba.REST_TOKEN_STORAGE_KEY, token);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Cuba.prototype, "locale", {
+        get: function () {
+            var storedLocale = localStorage.getItem(Cuba.LOCALE_STORAGE_KEY);
+            return storedLocale ? storedLocale : this.defaultLocale;
+        },
+        set: function (locale) {
+            localStorage.setItem(Cuba.LOCALE_STORAGE_KEY, locale);
         },
         enumerable: true,
         configurable: true
@@ -75,6 +88,9 @@ var Cuba = (function () {
     Cuba.prototype.loadMetadata = function () {
         return this.ajax('GET', 'v2/metadata/entities', null);
     };
+    Cuba.prototype.loadEnums = function () {
+        return this.ajax('GET', 'v2/metadata/enums', null);
+    };
     Cuba.prototype.loadEntityMetadata = function (entityName) {
         return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
     };
@@ -86,6 +102,7 @@ var Cuba = (function () {
     };
     Cuba.prototype._getBasicAuthHeaders = function () {
         return {
+            "Accept-Language": this.locale,
             "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
         };
     };
@@ -99,12 +116,13 @@ var Cuba = (function () {
             type: type,
             url: this.apiUrl + path,
             data: data,
-            dataType: 'json'
+            dataType: 'json',
+            headers: {
+                "Accept-Language": this.locale
+            }
         };
         if (this.restApiToken) {
-            settings.headers = {
-                "Authorization": "Bearer " + this.restApiToken
-            };
+            settings.headers["Authorization"] = "Bearer " + this.restApiToken;
         }
         if (type != 'GET') {
             settings.contentType = 'application/json';
@@ -125,5 +143,6 @@ var Cuba = (function () {
     };
     Cuba.REST_TOKEN_STORAGE_KEY = 'cubaAccessToken';
     Cuba.USER_NAME_STORAGE_KEY = 'cubaUserName';
+    Cuba.LOCALE_STORAGE_KEY = 'cubaLocale';
     return Cuba;
 }());
