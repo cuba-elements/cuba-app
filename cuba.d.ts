@@ -32,8 +32,9 @@ declare class Cuba {
     invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
     query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;
     loadMetadata(): JQueryPromise<any>;
-    loadEnums(): JQueryPromise<any>;
     loadEntityMetadata(entityName: string): JQueryPromise<any>;
+    loadEntitiesMessages(): JQueryPromise<any>;
+    loadEnums(): JQueryPromise<any>;
     getPermissions(): JQueryPromise<any>;
     getUserInfo(): JQueryPromise<any>;
     _getBasicAuthHeaders(): {

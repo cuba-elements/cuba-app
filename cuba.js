@@ -88,11 +88,14 @@ var Cuba = (function () {
     Cuba.prototype.loadMetadata = function () {
         return this.ajax('GET', 'v2/metadata/entities', null);
     };
-    Cuba.prototype.loadEnums = function () {
-        return this.ajax('GET', 'v2/metadata/enums', null);
-    };
     Cuba.prototype.loadEntityMetadata = function (entityName) {
         return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
+    };
+    Cuba.prototype.loadEntitiesMessages = function () {
+        return this.ajax('GET', 'v2/localization/entities', null);
+    };
+    Cuba.prototype.loadEnums = function () {
+        return this.ajax('GET', 'v2/metadata/enums', null);
     };
     Cuba.prototype.getPermissions = function () {
         return this.ajax('GET', 'v2/permissions', null);

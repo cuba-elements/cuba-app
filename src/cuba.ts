@@ -98,12 +98,16 @@ class Cuba {
         return this.ajax('GET', 'v2/metadata/entities', null);
     }
 
-    loadEnums(): JQueryPromise<any> {
-        return this.ajax('GET', 'v2/metadata/enums', null);
-    }
-
     loadEntityMetadata(entityName: string): JQueryPromise<any> {
         return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
+    }
+
+    loadEntitiesMessages():JQueryPromise<any> {
+        return this.ajax('GET', 'v2/localization/entities', null);
+    }
+
+    loadEnums(): JQueryPromise<any> {
+        return this.ajax('GET', 'v2/metadata/enums', null);
     }
 
     getPermissions(): JQueryPromise<any> {

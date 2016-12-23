@@ -6,7 +6,7 @@
 
     function getServerMessageSource() {
       if (!serverMessagesSource) {
-        serverMessagesSource = Rx.Observable.fromPromise(cubaApp.invokeService('mpg_RestMessagesService', 'getDataModelMessages'));
+        serverMessagesSource = Rx.Observable.fromPromise(cubaApp.loadEntitiesMessages());
       }
       return serverMessagesSource;
     }
