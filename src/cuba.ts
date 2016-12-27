@@ -151,9 +151,9 @@ class Cuba {
     }
 
     ajax(method, path, data?, fetchOptions?: IFetchOptions): Promise<any> {
+        let url = this.apiUrl + path;
         let settings: RequestInit = {
             method: method,
-            body: data,
             headers: {
                 "Accept-Language": this.locale
             }
@@ -161,8 +161,14 @@ class Cuba {
         if (this.restApiToken) {
             settings.headers["Authorization"] = "Bearer " + this.restApiToken
         }
-        if (method != 'GET') {
+        if (method == 'POST' || method == 'PUT') {
+            settings.body = data;
             settings.headers["Content-Type"] = "application/json; charset=UTF-8";
+        }
+        if (method == 'GET' && data) {
+            url += '?' + Object.keys(data).map(k => {
+                return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
+            }).join("&");
         }
         let handleAs:ContentType = fetchOptions ? fetchOptions.handleAs : undefined;
         switch (handleAs) {
@@ -174,7 +180,7 @@ class Cuba {
                 break;
         }
 
-        let fetchRes = fetch(this.apiUrl + path, settings).then(this.checkStatus);
+        let fetchRes = fetch(url, settings).then(this.checkStatus);
 
         fetchRes.catch((error) => {
             if (Cuba.isTokenExpiredResponse(error.response)) {
@@ -209,7 +215,7 @@ class Cuba {
 
 
     static isTokenExpiredResponse(resp: Response): boolean {
-        return resp.status === 401;
+        return resp && resp.status === 401;
         // && resp.responseJSON
         // && resp.responseJSON.error === 'invalid_token';
     }

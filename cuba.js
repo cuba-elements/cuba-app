@@ -56,8 +56,6 @@ var Cuba = (function () {
             .then(function (resp) { return resp.json(); })
             .then(function (data) {
             _this.restApiToken = data.access_token;
-            _this.loadEntitiesMessages();
-            _this.loadEnums();
             _this.loginSubject.onNext(data);
             return data;
         });
@@ -136,9 +134,9 @@ var Cuba = (function () {
     };
     Cuba.prototype.ajax = function (method, path, data, fetchOptions) {
         var _this = this;
+        var url = this.apiUrl + path;
         var settings = {
             method: method,
-            body: data,
             headers: {
                 "Accept-Language": this.locale
             }
@@ -146,8 +144,14 @@ var Cuba = (function () {
         if (this.restApiToken) {
             settings.headers["Authorization"] = "Bearer " + this.restApiToken;
         }
-        if (method != 'GET') {
+        if (method == 'POST' || method == 'PUT') {
+            settings.body = data;
             settings.headers["Content-Type"] = "application/json; charset=UTF-8";
+        }
+        if (method == 'GET' && data) {
+            url += '?' + Object.keys(data).map(function (k) {
+                return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
+            }).join("&");
         }
         var handleAs = fetchOptions ? fetchOptions.handleAs : undefined;
         switch (handleAs) {
@@ -158,7 +162,7 @@ var Cuba = (function () {
                 settings.headers["Accept"] = "application/json";
                 break;
         }
-        var fetchRes = fetch(this.apiUrl + path, settings).then(this.checkStatus);
+        var fetchRes = fetch(url, settings).then(this.checkStatus);
         fetchRes.catch(function (error) {
             if (Cuba.isTokenExpiredResponse(error.response)) {
                 _this.clearAuthData();
@@ -189,7 +193,7 @@ var Cuba = (function () {
         }
     };
     Cuba.isTokenExpiredResponse = function (resp) {
-        return resp.status === 401;
+        return resp && resp.status === 401;
     };
     return Cuba;
 }());
