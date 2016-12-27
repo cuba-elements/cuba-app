@@ -1,23 +1,6 @@
 <script>
   (function() {
 
-    let serverMessagesSource;
-    let enumSource;
-
-    function getServerMessageSource() {
-      if (!serverMessagesSource) {
-        serverMessagesSource = Rx.Observable.fromPromise(cubaApp.loadEntitiesMessages());
-      }
-      return serverMessagesSource;
-    }
-
-    function getEnumSource() {
-      if (!enumSource) {
-        enumSource = Rx.Observable.fromPromise(_loadEnums());
-      }
-      return enumSource;
-    }
-
     /**
      * @polymerBehavior CubaLocalizeBehavior
      */
@@ -57,21 +40,27 @@
 
       },
 
-      created: function() {
-        getServerMessageSource().subscribe((serverMessages) => {
+      ready: function() {
+        cubaApp.messagesSubject.subscribe(function(serverMessages) {
+          if (!serverMessages) {
+            return;
+          }
           this.serverMessages = serverMessages;
           this.notifyPath('serverMessages');
-        });
-        getEnumSource().subscribe((enums) => {
-          this.enums = enums;
+        }.bind(this));
+        cubaApp.enumsSubject.subscribe(function(enums) {
+          if (!enums) {
+            return;
+          }
+          this.enums = _convertEnums(enums);
           this.notifyPath('enums');
-        });
+        }.bind(this));
       },
 
       __computeMsg: function(serverMessages, messages) {
-        return (key) => {
+        return function (key) {
 
-          let message = messages[cubaApp.locale] ? messages[cubaApp.locale][key] : null;
+          var message = messages[cubaApp.locale] ? messages[cubaApp.locale][key] : null;
 
           if (!message) {
             message = serverMessages[key];
@@ -85,37 +74,27 @@
       },
 
       __computeEnumValues: function(enums) {
-        return (enumName) => {
+        return function (enumName) {
           return enums[enumName];
         }
       }
     };
 
-    function _loadEnums() {
-      return new Promise(function(resolve, reject) {
-        cubaApp.loadEnums().then(
-          (enums) => {
-            let convertedEnums = {};
-            enums.map((e) => {
-              convertedEnums[e.name] = _convertEnumValues(e.values);
-            });
-            setTimeout(() => {
-              resolve(convertedEnums);
-            }, 3000);
-          },
-          () => {
-            reject();
-          })
+    function _convertEnums(enums) {
+      var convertedEnums = {};
+      enums.map(function(e) {
+        convertedEnums[e.name] = _convertEnumValues(e.values);
       });
+      return convertedEnums;
     }
 
     function _convertEnumValues(rawValues) {
-      let values = [];
-      rawValues.forEach((rawValue) => {
+      var values = [];
+      rawValues.forEach(function(rawValue) {
         values.push({
           id: rawValue.id,
           value: rawValue.name,
-          label: rawValue.description
+          label: rawValue.caption
         });
       });
       return values;

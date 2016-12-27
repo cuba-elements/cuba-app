@@ -1,5 +1,15 @@
-/// <reference path="../typings/index.d.ts" />
+/// <reference path="../node_modules/rx/ts/rx.lite.d.ts" />
+/// <reference types="whatwg-fetch" />
+/// <reference types="es6-promise" />
+interface IResponseError extends Error {
+    response?: any;
+}
+declare type ContentType = 'text' | 'json' | 'blob';
+interface IFetchOptions extends RequestInit {
+    handleAs?: ContentType;
+}
 declare class Cuba {
+    name: string;
     apiUrl: string;
     restClientId: string;
     restClientSecret: string;
@@ -7,40 +17,46 @@ declare class Cuba {
     static REST_TOKEN_STORAGE_KEY: string;
     static USER_NAME_STORAGE_KEY: string;
     static LOCALE_STORAGE_KEY: string;
-    private loginCallbacks;
-    private tokenExpiryCallbacks;
-    constructor(apiUrl?: string, restClientId?: string, restClientSecret?: string, defaultLocale?: string);
-    restApiToken: string;
-    locale: string;
-    login(login: string, password: string): JQueryPromise<{
+    loginSubject: Rx.Subject<{
         access_token: string;
     }>;
-    onLogin(cb: Function): void;
-    logout(): JQueryPromise<any>;
-    onTokenExpiry(cb: any): void;
+    tokenExpirySubject: Rx.Subject<{}>;
+    messagesSubject: Rx.BehaviorSubject<any>;
+    enumsSubject: Rx.BehaviorSubject<any>;
+    constructor(name?: string, apiUrl?: string, restClientId?: string, restClientSecret?: string, defaultLocale?: string);
+    restApiToken: string;
+    locale: string;
+    login(login: string, password: string): Promise<{
+        access_token: string;
+    }>;
+    logout(): Promise<any>;
     loadEntities(entityName: any, options?: {
         view?: string;
         sort?: string;
         limit?: number;
         offset?: number;
-    }): JQueryPromise<any[]>;
+    }): Promise<any[]>;
     loadEntity(entityName: any, id: any, options?: {
         view?: string;
-    }): JQueryPromise<any>;
-    deleteEntity(entityName: any, id: any): JQueryPromise<any>;
-    commitEntity(entityName: string, entity: any): JQueryPromise<any>;
-    invokeService(serviceName: string, methodName: string, params: any, ajaxSettings?: JQueryAjaxSettings): JQueryPromise<any>;
-    query(entityName: string, queryName: string, params?: any): JQueryPromise<any>;
-    loadMetadata(): JQueryPromise<any>;
-    loadEntityMetadata(entityName: string): JQueryPromise<any>;
-    loadEntitiesMessages(): JQueryPromise<any>;
-    loadEnums(): JQueryPromise<any>;
-    getPermissions(): JQueryPromise<any>;
-    getUserInfo(): JQueryPromise<any>;
-    _getBasicAuthHeaders(): {
-        [header: string]: string;
-    };
-    static clearAuthData(): void;
-    ajax(type: any, path: any, data?: any, ajaxSettings?: JQueryAjaxSettings): JQueryXHR;
-    static isTokenExpiredResponse(resp: JQueryXHR): boolean;
+    }): Promise<any>;
+    deleteEntity(entityName: any, id: any): Promise<any>;
+    commitEntity(entityName: string, entity: any): Promise<any>;
+    invokeService(serviceName: string, methodName: string, params: any, fetchOptions?: IFetchOptions): Promise<any>;
+    query(entityName: string, queryName: string, params?: any): Promise<any>;
+    loadMetadata(): Promise<any>;
+    loadEntityMetadata(entityName: string): Promise<any>;
+    loadEntitiesMessages(): Promise<any>;
+    loadEnums(): Promise<any>;
+    getPermissions(): Promise<any>;
+    getUserInfo(): Promise<any>;
+    private _getBasicAuthHeaders();
+    private clearAuthData();
+    ajax(method: any, path: any, data?: any, fetchOptions?: IFetchOptions): Promise<any>;
+    checkStatus(response: Response): Response;
+    static isTokenExpiredResponse(resp: Response): boolean;
 }
+declare const Symbol: {
+    iterator: symbol;
+};
+declare type IterableIterator<T> = any;
+declare type IteratorResult<T> = any;

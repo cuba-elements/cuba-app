@@ -1,9 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../promise-polyfill/promise-polyfill-lite.html">
 
 <!--
 The `cuba-app` element is used for initialization and configuration connection to CUBA REST API.
 Exposes `cubaApp` object to the global JS scope.
-Current implementation depends on jQuery.
 -->
 <dom-module id="cuba-app">
   <template>
@@ -14,35 +14,33 @@ Current implementation depends on jQuery.
     </style>
     <content></content>
   </template>
-  <script src="../jquery/dist/jquery.min.js"></script>
   <script src="../rxjs/dist/rx.lite.js"></script>
   <script src="cuba.js"></script>
   <script>
     (function(){
       "use strict";
-      window.cubaApp = new Cuba();
 
       Polymer({
         is: 'cuba-app',
         properties: {
-
           /**
            * Connection URL to CUBA REST API v2.
            * Trailing slash required.
            */
           apiUrl: {
-            type: String,
-            observer: '_apiUrlChanged',
-            value: '/app/rest/'
+            type: String
           }
         },
-        created: function() {
-          window.cubaApp.onTokenExpiry(function() {
-            this.fire('cuba-token-expired');
-          }.bind(this));
-        },
-        _apiUrlChanged: function() {
-          cubaApp.apiUrl = this.apiUrl;
+        observers: ['_appSettingsChanged(apiUrl)'],
+        _appSettingsChanged: function(apiUrl) {
+          if (!window.cubaApp) {
+            window.cubaApp = new Cuba("", apiUrl);
+            window.cubaApp.tokenExpirySubject.subscribe(function() {
+              this.fire('cuba-token-expired');
+            }.bind(this));
+          } else {
+            window.cubaApp.apiUrl = apiUrl
+          }
         }
       });
     })();

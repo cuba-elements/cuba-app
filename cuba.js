@@ -1,16 +1,23 @@
-///<reference path="../typings/index.d.ts" />
 var Cuba = (function () {
-    function Cuba(apiUrl, restClientId, restClientSecret, defaultLocale) {
+    function Cuba(name, apiUrl, restClientId, restClientSecret, defaultLocale) {
+        if (name === void 0) { name = ""; }
         if (apiUrl === void 0) { apiUrl = '/app/rest/'; }
         if (restClientId === void 0) { restClientId = 'client'; }
         if (restClientSecret === void 0) { restClientSecret = 'secret'; }
         if (defaultLocale === void 0) { defaultLocale = 'en'; }
+        this.name = name;
         this.apiUrl = apiUrl;
         this.restClientId = restClientId;
         this.restClientSecret = restClientSecret;
         this.defaultLocale = defaultLocale;
-        this.loginCallbacks = $.Callbacks();
-        this.tokenExpiryCallbacks = $.Callbacks();
+        this.loginSubject = new Rx.Subject();
+        this.tokenExpirySubject = new Rx.Subject();
+        this.messagesSubject = new Rx.BehaviorSubject(null);
+        this.enumsSubject = new Rx.BehaviorSubject(null);
+        if (this.restApiToken) {
+            this.loadEntitiesMessages();
+            this.loadEnums();
+        }
     }
     Object.defineProperty(Cuba.prototype, "restApiToken", {
         get: function () {
@@ -35,91 +42,103 @@ var Cuba = (function () {
     });
     Cuba.prototype.login = function (login, password) {
         var _this = this;
-        return $.ajax({
-            url: this.apiUrl + 'v2/oauth/token',
-            type: 'POST',
+        if (login == null)
+            login = '';
+        if (password == null)
+            password = '';
+        var fetchOptions = {
+            method: 'POST',
             headers: this._getBasicAuthHeaders(),
-            dataType: 'json',
-            data: { grant_type: 'password', username: login, password: password }
-        }).then(function (data) {
+            body: 'grant_type=password&username=' + encodeURIComponent(login) + '&password=' + encodeURIComponent(password)
+        };
+        var loginRes = fetch(this.apiUrl + 'v2/oauth/token', fetchOptions)
+            .then(this.checkStatus)
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
             _this.restApiToken = data.access_token;
-            _this.loginCallbacks.fire();
+            _this.loadEntitiesMessages();
+            _this.loadEnums();
+            _this.loginSubject.onNext(data);
+            return data;
         });
-    };
-    Cuba.prototype.onLogin = function (cb) {
-        this.loginCallbacks.add(cb);
+        return loginRes;
     };
     Cuba.prototype.logout = function () {
-        var ajaxSettings = {
-            type: 'POST',
-            url: this.apiUrl + 'v2/oauth/revoke',
-            data: { token: this.restApiToken },
-            headers: this._getBasicAuthHeaders()
+        var fetchOptions = {
+            method: 'POST',
+            headers: this._getBasicAuthHeaders(),
+            body: "token=" + encodeURIComponent(this.restApiToken),
         };
-        Cuba.clearAuthData();
-        return $.ajax(ajaxSettings);
-    };
-    Cuba.prototype.onTokenExpiry = function (cb) {
-        this.tokenExpiryCallbacks.add(cb);
+        this.clearAuthData();
+        return fetch(this.apiUrl + 'v2/oauth/revoke', fetchOptions).then(this.checkStatus);
     };
     Cuba.prototype.loadEntities = function (entityName, options) {
-        return this.ajax('GET', 'v2/entities/' + entityName, options);
+        return this.ajax('GET', 'v2/entities/' + entityName, options, { handleAs: 'json' });
     };
     Cuba.prototype.loadEntity = function (entityName, id, options) {
-        return this.ajax('GET', 'v2/entities/' + entityName + '/' + id, options);
+        return this.ajax('GET', 'v2/entities/' + entityName + '/' + id, options, { handleAs: 'json' });
     };
     Cuba.prototype.deleteEntity = function (entityName, id) {
-        return this.ajax('DELETE', 'v2/entities/' + entityName + '/' + id, null, { dataType: null });
+        return this.ajax('DELETE', 'v2/entities/' + entityName + '/' + id);
     };
     Cuba.prototype.commitEntity = function (entityName, entity) {
         if (entity.id) {
-            return this.ajax('PUT', 'v2/entities/' + entityName + '/' + entity.id, JSON.stringify(entity));
+            return this.ajax('PUT', 'v2/entities/' + entityName + '/' + entity.id, JSON.stringify(entity), { handleAs: 'json' });
         }
         else {
-            return this.ajax('POST', 'v2/entities/' + entityName, JSON.stringify(entity));
+            return this.ajax('POST', 'v2/entities/' + entityName, JSON.stringify(entity), { handleAs: 'json' });
         }
     };
-    Cuba.prototype.invokeService = function (serviceName, methodName, params, ajaxSettings) {
-        return this.ajax('POST', 'v2/services/' + serviceName + '/' + methodName, JSON.stringify(params), ajaxSettings);
+    Cuba.prototype.invokeService = function (serviceName, methodName, params, fetchOptions) {
+        return this.ajax('POST', 'v2/services/' + serviceName + '/' + methodName, JSON.stringify(params), fetchOptions);
     };
     Cuba.prototype.query = function (entityName, queryName, params) {
-        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params);
+        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params, { handleAs: 'json' });
     };
     Cuba.prototype.loadMetadata = function () {
-        return this.ajax('GET', 'v2/metadata/entities', null);
+        return this.ajax('GET', 'v2/metadata/entities', null, { handleAs: 'json' });
     };
     Cuba.prototype.loadEntityMetadata = function (entityName) {
-        return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null);
+        return this.ajax('GET', 'v2/metadata/entities' + '/' + entityName, null, { handleAs: 'json' });
     };
     Cuba.prototype.loadEntitiesMessages = function () {
-        return this.ajax('GET', 'v2/localization/entities', null);
+        var _this = this;
+        var fetchRes = this.ajax('GET', 'v2/messages/entities', null, { handleAs: 'json' });
+        fetchRes.then(function (messages) {
+            _this.messagesSubject.onNext(messages);
+        });
+        return fetchRes;
     };
     Cuba.prototype.loadEnums = function () {
-        return this.ajax('GET', 'v2/metadata/enums', null);
+        var _this = this;
+        var fetchRes = this.ajax('GET', 'v2/metadata/enums', null, { handleAs: 'json' });
+        fetchRes.then(function (enums) {
+            _this.enumsSubject.onNext(enums);
+        });
+        return fetchRes;
     };
     Cuba.prototype.getPermissions = function () {
-        return this.ajax('GET', 'v2/permissions', null);
+        return this.ajax('GET', 'v2/permissions', null, { handleAs: 'json' });
     };
     Cuba.prototype.getUserInfo = function () {
-        return this.ajax('GET', 'v2/userInfo', null);
+        return this.ajax('GET', 'v2/userInfo', null, { handleAs: 'json' });
     };
     Cuba.prototype._getBasicAuthHeaders = function () {
         return {
             "Accept-Language": this.locale,
-            "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret)
+            "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret),
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
         };
     };
-    Cuba.clearAuthData = function () {
+    Cuba.prototype.clearAuthData = function () {
         localStorage.removeItem(Cuba.REST_TOKEN_STORAGE_KEY);
         localStorage.removeItem(Cuba.USER_NAME_STORAGE_KEY);
     };
-    Cuba.prototype.ajax = function (type, path, data, ajaxSettings) {
+    Cuba.prototype.ajax = function (method, path, data, fetchOptions) {
         var _this = this;
         var settings = {
-            type: type,
-            url: this.apiUrl + path,
-            data: data,
-            dataType: 'json',
+            method: method,
+            body: data,
             headers: {
                 "Accept-Language": this.locale
             }
@@ -127,25 +146,53 @@ var Cuba = (function () {
         if (this.restApiToken) {
             settings.headers["Authorization"] = "Bearer " + this.restApiToken;
         }
-        if (type != 'GET') {
-            settings.contentType = 'application/json';
+        if (method != 'GET') {
+            settings.headers["Content-Type"] = "application/json; charset=UTF-8";
         }
-        var ajaxPromise = $.ajax($.extend(settings, ajaxSettings));
-        ajaxPromise.then(null, function (xhr) {
-            if (Cuba.isTokenExpiredResponse(xhr)) {
-                Cuba.clearAuthData();
-                _this.tokenExpiryCallbacks.fire();
+        var handleAs = fetchOptions ? fetchOptions.handleAs : undefined;
+        switch (handleAs) {
+            case "text":
+                settings.headers["Accept"] = "text/html";
+                break;
+            case "json":
+                settings.headers["Accept"] = "application/json";
+                break;
+        }
+        var fetchRes = fetch(this.apiUrl + path, settings).then(this.checkStatus);
+        fetchRes.catch(function (error) {
+            if (Cuba.isTokenExpiredResponse(error.response)) {
+                _this.clearAuthData();
+                _this.tokenExpirySubject.onNext(true);
             }
         });
-        return ajaxPromise;
+        return fetchRes.then(function (resp) {
+            switch (handleAs) {
+                case "text":
+                    return resp.text();
+                case "blob":
+                    return resp.blob();
+                case "json":
+                    return resp.json();
+                default:
+                    return resp;
+            }
+        });
+    };
+    Cuba.prototype.checkStatus = function (response) {
+        if (response.status >= 200 && response.status < 300) {
+            return response;
+        }
+        else {
+            var error = new Error(response.statusText);
+            error.response = response;
+            throw error;
+        }
     };
     Cuba.isTokenExpiredResponse = function (resp) {
-        return resp.status === 401
-            && resp.responseJSON
-            && resp.responseJSON.error === 'invalid_token';
+        return resp.status === 401;
     };
-    Cuba.REST_TOKEN_STORAGE_KEY = 'cubaAccessToken';
-    Cuba.USER_NAME_STORAGE_KEY = 'cubaUserName';
-    Cuba.LOCALE_STORAGE_KEY = 'cubaLocale';
     return Cuba;
 }());
+Cuba.REST_TOKEN_STORAGE_KEY = 'cubaAccessToken';
+Cuba.USER_NAME_STORAGE_KEY = 'cubaUserName';
+Cuba.LOCALE_STORAGE_KEY = 'cubaLocale';

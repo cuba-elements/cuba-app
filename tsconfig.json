@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "declaration": true
+    "declaration": true,
+    "noEmitOnError": true,
+    "removeComments": true
   }
 }
