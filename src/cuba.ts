@@ -19,6 +19,7 @@ class Cuba {
     public tokenExpirySubject = new Rx.Subject();
     public messagesSubject = new Rx.BehaviorSubject(null);
     public enumsSubject = new Rx.BehaviorSubject(null);
+    public localeSubject = new Rx.BehaviorSubject(this.locale);
 
     constructor(public name = "",
                 public apiUrl = '/app/rest/',
@@ -46,6 +47,7 @@ class Cuba {
 
     set locale(locale: string) {
         localStorage.setItem(Cuba.LOCALE_STORAGE_KEY, locale);
+        this.localeSubject.onNext(this.locale);
     }
 
     login(login: string, password: string): Promise<{access_token: string}> {

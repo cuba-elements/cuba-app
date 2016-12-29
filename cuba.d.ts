@@ -23,6 +23,7 @@ declare class Cuba {
     tokenExpirySubject: Rx.Subject<{}>;
     messagesSubject: Rx.BehaviorSubject<any>;
     enumsSubject: Rx.BehaviorSubject<any>;
+    localeSubject: Rx.BehaviorSubject<string>;
     constructor(name?: string, apiUrl?: string, restClientId?: string, restClientSecret?: string, defaultLocale?: string);
     restApiToken: string;
     locale: string;

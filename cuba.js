@@ -14,6 +14,7 @@ var Cuba = (function () {
         this.tokenExpirySubject = new Rx.Subject();
         this.messagesSubject = new Rx.BehaviorSubject(null);
         this.enumsSubject = new Rx.BehaviorSubject(null);
+        this.localeSubject = new Rx.BehaviorSubject(this.locale);
         if (this.restApiToken) {
             this.loadEntitiesMessages();
             this.loadEnums();
@@ -36,6 +37,7 @@ var Cuba = (function () {
         },
         set: function (locale) {
             localStorage.setItem(Cuba.LOCALE_STORAGE_KEY, locale);
+            this.localeSubject.onNext(this.locale);
         },
         enumerable: true,
         configurable: true

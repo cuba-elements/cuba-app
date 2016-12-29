@@ -15,7 +15,7 @@
 
         enums: {
           type: Object,
-          readonly: true,
+          readonly: true
         },
 
         messages: {
@@ -41,25 +41,43 @@
 
       },
 
-      ready: function() {
-        cubaApp.messagesSubject.subscribe(function(serverMessages) {
-          if (!serverMessages) {
-            return;
-          }
-          this.serverMessages = serverMessages;
-          this.notifyPath('serverMessages');
-        }.bind(this));
-        cubaApp.enumsSubject.subscribe(function(enums) {
-          if (!enums) {
-            return;
-          }
-          this.enums = _convertEnums(enums);
-          this.notifyPath('enums');
-        }.bind(this));
+      attached: function() {
+        this.__subscriptions = [];
+        this.__subscriptions.push(
+          cubaApp.messagesSubject.subscribe(function(serverMessages) {
+            if (!serverMessages) {
+              return;
+            }
+            this.serverMessages = serverMessages;
+            this.notifyPath('serverMessages');
+          }.bind(this))
+        );
+        this.__subscriptions.push(
+          cubaApp.enumsSubject.subscribe(function(enums) {
+            if (!enums) {
+              return;
+            }
+            this.enums = _convertEnums(enums);
+            this.notifyPath('enums');
+          }.bind(this))
+        );
+        this.__subscriptions.push(
+          cubaApp.localeSubject.subscribe(function(locale) {
+            var messages = this.messages;
+            this.set('messages', {});
+            this.set('messages', messages);
+          }.bind(this))
+        );
+      },
+
+      detached: function() {
+        for (var s of this.__subscriptions) {
+          s.dispose();
+        }
       },
 
       __computeMsg: function(serverMessages, messages) {
-        return function (key) {
+        return function(key) {
 
           var message = messages[cubaApp.locale] ? messages[cubaApp.locale][key] : null;
 
@@ -75,7 +93,7 @@
       },
 
       __computeEnumValues: function(enums) {
-        return function (enumName) {
+        return function(enumName) {
           return enums[enumName];
         }
       }
