@@ -15,10 +15,6 @@ var Cuba = (function () {
         this.messagesSubject = new Rx.BehaviorSubject(null);
         this.enumsSubject = new Rx.BehaviorSubject(null);
         this.localeSubject = new Rx.BehaviorSubject(this.locale);
-        if (this.restApiToken) {
-            this.loadEntitiesMessages();
-            this.loadEnums();
-        }
     }
     Object.defineProperty(Cuba.prototype, "restApiToken", {
         get: function () {
@@ -150,9 +146,10 @@ var Cuba = (function () {
             settings.body = data;
             settings.headers["Content-Type"] = "application/json; charset=UTF-8";
         }
-        if (method == 'GET' && data) {
-            url += '?' + Object.keys(data).map(function (k) {
-                return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
+        if (method == 'GET' && data && Object.keys(data).length > 0) {
+            url += '?' + Object.keys(data)
+                .map(function (k) {
+                return encodeURIComponent(k) + "=" + (data[k] != null ? encodeURIComponent(data[k]) : '');
             }).join("&");
         }
         var handleAs = fetchOptions ? fetchOptions.handleAs : undefined;
@@ -189,9 +186,7 @@ var Cuba = (function () {
             return response;
         }
         else {
-            var error = new Error(response.statusText);
-            error.response = response;
-            throw error;
+            return Promise.reject({ message: response.statusText, response: response });
         }
     };
     Cuba.isTokenExpiredResponse = function (resp) {

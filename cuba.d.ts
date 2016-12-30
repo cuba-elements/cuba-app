@@ -53,7 +53,7 @@ declare class Cuba {
     private _getBasicAuthHeaders();
     private clearAuthData();
     ajax(method: any, path: any, data?: any, fetchOptions?: IFetchOptions): Promise<any>;
-    checkStatus(response: Response): Response;
+    checkStatus(response: Response): any;
     static isTokenExpiredResponse(resp: Response): boolean;
 }
 declare const Symbol: {

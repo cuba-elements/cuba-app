@@ -26,10 +26,6 @@ class Cuba {
                 public restClientId = 'client',
                 public restClientSecret = 'secret',
                 public defaultLocale = 'en') {
-        if (this.restApiToken) {
-            this.loadEntitiesMessages();
-            this.loadEnums();
-        }
     }
 
     get restApiToken(): string {
@@ -167,12 +163,13 @@ class Cuba {
             settings.body = data;
             settings.headers["Content-Type"] = "application/json; charset=UTF-8";
         }
-        if (method == 'GET' && data) {
-            url += '?' + Object.keys(data).map(k => {
-                return encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
-            }).join("&");
+        if (method == 'GET' && data && Object.keys(data).length > 0) {
+            url += '?' + Object.keys(data)
+                    .map(k => {
+                        return encodeURIComponent(k) + "=" + (data[k] != null ? encodeURIComponent(data[k]) : '');
+                    }).join("&");
         }
-        let handleAs:ContentType = fetchOptions ? fetchOptions.handleAs : undefined;
+        let handleAs: ContentType = fetchOptions ? fetchOptions.handleAs : undefined;
         switch (handleAs) {
             case "text":
                 settings.headers["Accept"] = "text/html";
@@ -205,13 +202,11 @@ class Cuba {
         });
     }
 
-    checkStatus(response: Response): Response {
+    checkStatus(response: Response): any {
         if (response.status >= 200 && response.status < 300) {
             return response;
         } else {
-            let error: IResponseError = new Error(response.statusText);
-            error.response = response;
-            throw error;
+            return Promise.reject({message: response.statusText, response: response});
         }
     }
 
