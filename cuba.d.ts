@@ -44,6 +44,7 @@ declare class Cuba {
     commitEntity(entityName: string, entity: any): Promise<any>;
     invokeService(serviceName: string, methodName: string, params: any, fetchOptions?: IFetchOptions): Promise<any>;
     query(entityName: string, queryName: string, params?: any): Promise<any>;
+    queryCount(entityName: string, queryName: string, params?: any): Promise<any>;
     loadMetadata(): Promise<any>;
     loadEntityMetadata(entityName: string): Promise<any>;
     loadEntitiesMessages(): Promise<any>;

@@ -103,6 +103,10 @@ class Cuba {
         return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params, {handleAs: 'json'});
     }
 
+    queryCount(entityName: string, queryName: string, params?: any): Promise<any> {
+        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName + '/count', params);
+    }
+
     loadMetadata(): Promise<any> {
         return this.ajax('GET', 'v2/metadata/entities', null, {handleAs: 'json'});
     }
@@ -197,7 +201,7 @@ class Cuba {
                 case "json":
                     return resp.json();
                 default:
-                    return resp;
+                    return resp.text();
             }
         });
     }

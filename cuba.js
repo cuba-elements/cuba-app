@@ -91,6 +91,9 @@ var Cuba = (function () {
     Cuba.prototype.query = function (entityName, queryName, params) {
         return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName, params, { handleAs: 'json' });
     };
+    Cuba.prototype.queryCount = function (entityName, queryName, params) {
+        return this.ajax('GET', 'v2/queries/' + entityName + '/' + queryName + '/count', params);
+    };
     Cuba.prototype.loadMetadata = function () {
         return this.ajax('GET', 'v2/metadata/entities', null, { handleAs: 'json' });
     };
@@ -177,7 +180,7 @@ var Cuba = (function () {
                 case "json":
                     return resp.json();
                 default:
-                    return resp;
+                    return resp.text();
             }
         });
     };
