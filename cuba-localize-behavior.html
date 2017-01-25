@@ -4,7 +4,7 @@
     /**
      * @polymerBehavior CubaLocalizeBehavior
      */
-    CubaLocalizeBehavior = {
+    CubaLocalizeBehaviorImpl = {
 
       properties: {
 
@@ -31,12 +31,12 @@
 
         msg: {
           type: Function,
-          computed: '__computeMsg(serverMessages, messages)'
+          computed: '__computeMsg(app, serverMessages, messages)'
         },
 
         enumValues: {
           type: Function,
-          computed: '__computeEnumValues(enums)'
+          computed: '__computeEnumValues(app, enums)'
         }
 
       },
@@ -44,7 +44,7 @@
       attached: function() {
         this.__subscriptions = [];
         this.__subscriptions.push(
-          cubaApp.messagesSubject.subscribe(function(serverMessages) {
+          cuba.getApp().messagesSubject.subscribe(function(serverMessages) {
             if (!serverMessages) {
               return;
             }
@@ -53,7 +53,7 @@
           }.bind(this))
         );
         this.__subscriptions.push(
-          cubaApp.enumsSubject.subscribe(function(enums) {
+          cuba.getApp().enumsSubject.subscribe(function(enums) {
             if (!enums) {
               return;
             }
@@ -62,7 +62,7 @@
           }.bind(this))
         );
         this.__subscriptions.push(
-          cubaApp.localeSubject.subscribe(function(locale) {
+          cuba.getApp().localeSubject.subscribe(function(locale) {
             var messages = this.messages;
             this.set('messages', {});
             this.set('messages', messages);
@@ -71,15 +71,15 @@
       },
 
       detached: function() {
-        for (var s of this.__subscriptions) {
-          s.dispose();
+        for (var i = 0; i < this.__subscriptions.length; i++) {
+          this.__subscriptions[i].dispose();
         }
       },
 
-      __computeMsg: function(serverMessages, messages) {
+      __computeMsg: function(app, serverMessages, messages) {
         return function(key) {
 
-          var message = messages[cubaApp.locale] ? messages[cubaApp.locale][key] : null;
+          var message = messages[cuba.getApp().locale] ? messages[cuba.getApp().locale][key] : null;
 
           if (!message) {
             message = serverMessages[key];
@@ -92,12 +92,17 @@
         }
       },
 
-      __computeEnumValues: function(enums) {
+      __computeEnumValues: function(app, enums) {
         return function(enumName) {
           return enums[enumName];
         }
       }
     };
+
+    CubaLocalizeBehavior = [
+      CubaAppAwareBehavior,
+      CubaLocalizeBehaviorImpl
+    ];
 
     function _convertEnums(enums) {
       var convertedEnums = {};

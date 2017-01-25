@@ -3,7 +3,7 @@
 
 <!--
 The `cuba-app` element is used for initialization and configuration connection to CUBA REST API.
-Exposes `cubaApp` object to the global JS scope.
+Adds `cuba` object to the global JS scope.
 -->
 <dom-module id="cuba-app">
   <template>
@@ -29,18 +29,39 @@ Exposes `cubaApp` object to the global JS scope.
            */
           apiUrl: {
             type: String
+          },
+
+          name: {
+            type: String,
+            value: ""
+          },
+
+          app: {
+            type: Object,
+            readOnly: true,
+            notify: true
           }
         },
-        observers: ['_appSettingsChanged(apiUrl)'],
-        _appSettingsChanged: function(apiUrl) {
-          if (!window.cubaApp) {
-            window.cubaApp = new Cuba("", apiUrl);
-            window.cubaApp.tokenExpirySubject.subscribe(function() {
-              this.fire('cuba-token-expired');
-            }.bind(this));
-          } else {
-            window.cubaApp.apiUrl = apiUrl
+
+        observers: ['_setupApp(apiUrl, name)'],
+
+        _setupApp: function(apiUrl, name) {
+
+          if (this.app) {
+            throw new Error("Cuba app is already initialized");
           }
+
+          this._setApp(cuba.initializeApp({
+            name: this.name,
+            apiUrl: this.apiUrl
+          }));
+
+          this.fire('cuba-app-initialized');
+
+          this.app.tokenExpirySubject.subscribe(function() {
+            this.fire('cuba-token-expired');
+          }.bind(this));
+
         }
       });
     })();
