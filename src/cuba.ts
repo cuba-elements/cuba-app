@@ -1,5 +1,3 @@
-/// <reference path="../node_modules/rx/ts/rx.lite.d.ts"/>
-
 module cuba {
 
     const apps:CubaApp[] = [];
@@ -46,11 +44,13 @@ module cuba {
         static USER_NAME_STORAGE_KEY = 'cubaUserName';
         static LOCALE_STORAGE_KEY = 'cubaLocale';
 
-        public loginSubject = new Rx.Subject<{access_token: string}>();
-        public tokenExpirySubject = new Rx.Subject();
-        public messagesSubject = new Rx.BehaviorSubject(null);
-        public enumsSubject = new Rx.BehaviorSubject(null);
-        public localeSubject = new Rx.BehaviorSubject(this.locale);
+        public messagesCache:any[];
+        public enumsCache:any[];
+
+        private tokenExpiryListeners:(() => {})[] = [];
+        private messagesLoadingListeners:((messages: any[]) => {})[] = [];
+        private enumsLoadingListeners:((enums: any[]) => {})[] = [];
+        private localeChangeListeners:((locale: string) => {})[] = [];
 
         constructor(public name = "",
                     public apiUrl = '/app/rest/',
@@ -74,7 +74,7 @@ module cuba {
 
         set locale(locale: string) {
             localStorage.setItem(this.name + "_" + CubaApp.LOCALE_STORAGE_KEY, locale);
-            this.localeSubject.onNext(this.locale);
+            this.localeChangeListeners.forEach((l) => l(this.locale));
         }
 
         login(login: string, password: string): Promise<{access_token: string}> {
@@ -90,7 +90,6 @@ module cuba {
                 .then((resp) => resp.json())
                 .then((data) => {
                     this.restApiToken = data.access_token;
-                    this.loginSubject.onNext(data);
                     return data;
                 });
             return loginRes;
@@ -149,7 +148,8 @@ module cuba {
         loadEntitiesMessages(): Promise<any> {
             let fetchRes = this.ajax('GET', 'v2/messages/entities', null, {handleAs: 'json'});
             fetchRes.then((messages) => {
-                this.messagesSubject.onNext(messages);
+                this.messagesCache = messages;
+                this.messagesLoadingListeners.forEach(l => l(messages));
             });
             return fetchRes;
         }
@@ -157,7 +157,8 @@ module cuba {
         loadEnums(): Promise<any> {
             let fetchRes = this.ajax('GET', 'v2/metadata/enums', null, {handleAs: 'json'});
             fetchRes.then((enums) => {
-                this.enumsSubject.onNext(enums);
+                this.enumsCache = enums;
+                this.enumsLoadingListeners.forEach(l => l(enums));
             });
             return fetchRes;
         }
@@ -219,7 +220,7 @@ module cuba {
             fetchRes.catch((error) => {
                 if (CubaApp.isTokenExpiredResponse(error.response)) {
                     this.clearAuthData();
-                    this.tokenExpirySubject.onNext(true);
+                    this.tokenExpiryListeners.forEach((l) => l());
                 }
             });
 
@@ -235,6 +236,26 @@ module cuba {
                         return resp.text();
                 }
             });
+        }
+
+        onLocaleChange(c) {
+            this.localeChangeListeners.push(c);
+            return () => this.localeChangeListeners.splice(this.localeChangeListeners.indexOf(c), 1);
+        }
+
+        onTokenExpiry(c) {
+            this.tokenExpiryListeners.push(c);
+            return () => this.tokenExpiryListeners.splice(this.tokenExpiryListeners.indexOf(c), 1);
+        }
+
+        onEnumsLoaded(c) {
+            this.enumsLoadingListeners.push(c);
+            return () => this.enumsLoadingListeners.splice(this.enumsLoadingListeners.indexOf(c), 1);
+        }
+
+        onMessagesLoaded(c) {
+            this.messagesLoadingListeners.push(c);
+            return () => this.messagesLoadingListeners.splice(this.messagesLoadingListeners.indexOf(c), 1);
         }
 
         checkStatus(response: Response): any {

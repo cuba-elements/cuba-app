@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/rx/ts/rx.lite.d.ts" />
 /// <reference types="whatwg-fetch" />
 /// <reference types="es6-promise" />
 declare module cuba {
@@ -27,13 +26,12 @@ declare module cuba {
         static REST_TOKEN_STORAGE_KEY: string;
         static USER_NAME_STORAGE_KEY: string;
         static LOCALE_STORAGE_KEY: string;
-        loginSubject: Rx.Subject<{
-            access_token: string;
-        }>;
-        tokenExpirySubject: Rx.Subject<{}>;
-        messagesSubject: Rx.BehaviorSubject<any>;
-        enumsSubject: Rx.BehaviorSubject<any>;
-        localeSubject: Rx.BehaviorSubject<string>;
+        messagesCache: any[];
+        enumsCache: any[];
+        private tokenExpiryListeners;
+        private messagesLoadingListeners;
+        private enumsLoadingListeners;
+        private localeChangeListeners;
         constructor(name?: string, apiUrl?: string, restClientId?: string, restClientSecret?: string, defaultLocale?: string);
         restApiToken: string;
         locale: string;
@@ -64,6 +62,10 @@ declare module cuba {
         private _getBasicAuthHeaders();
         private clearAuthData();
         ajax(method: any, path: any, data?: any, fetchOptions?: IFetchOptions): Promise<any>;
+        onLocaleChange(c: any): () => ((locale: string) => {})[];
+        onTokenExpiry(c: any): () => (() => {})[];
+        onEnumsLoaded(c: any): () => ((enums: any[]) => {})[];
+        onMessagesLoaded(c: any): () => ((messages: any[]) => {})[];
         checkStatus(response: Response): any;
         static isTokenExpiredResponse(resp: Response): boolean;
     }

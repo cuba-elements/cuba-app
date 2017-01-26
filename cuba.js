@@ -32,11 +32,10 @@ var cuba;
             this.restClientId = restClientId;
             this.restClientSecret = restClientSecret;
             this.defaultLocale = defaultLocale;
-            this.loginSubject = new Rx.Subject();
-            this.tokenExpirySubject = new Rx.Subject();
-            this.messagesSubject = new Rx.BehaviorSubject(null);
-            this.enumsSubject = new Rx.BehaviorSubject(null);
-            this.localeSubject = new Rx.BehaviorSubject(this.locale);
+            this.tokenExpiryListeners = [];
+            this.messagesLoadingListeners = [];
+            this.enumsLoadingListeners = [];
+            this.localeChangeListeners = [];
         }
         Object.defineProperty(CubaApp.prototype, "restApiToken", {
             get: function () {
@@ -54,8 +53,9 @@ var cuba;
                 return storedLocale ? storedLocale : this.defaultLocale;
             },
             set: function (locale) {
+                var _this = this;
                 localStorage.setItem(this.name + "_" + CubaApp.LOCALE_STORAGE_KEY, locale);
-                this.localeSubject.onNext(this.locale);
+                this.localeChangeListeners.forEach(function (l) { return l(_this.locale); });
             },
             enumerable: true,
             configurable: true
@@ -76,7 +76,6 @@ var cuba;
                 .then(function (resp) { return resp.json(); })
                 .then(function (data) {
                 _this.restApiToken = data.access_token;
-                _this.loginSubject.onNext(data);
                 return data;
             });
             return loginRes;
@@ -126,7 +125,8 @@ var cuba;
             var _this = this;
             var fetchRes = this.ajax('GET', 'v2/messages/entities', null, { handleAs: 'json' });
             fetchRes.then(function (messages) {
-                _this.messagesSubject.onNext(messages);
+                _this.messagesCache = messages;
+                _this.messagesLoadingListeners.forEach(function (l) { return l(messages); });
             });
             return fetchRes;
         };
@@ -134,7 +134,8 @@ var cuba;
             var _this = this;
             var fetchRes = this.ajax('GET', 'v2/metadata/enums', null, { handleAs: 'json' });
             fetchRes.then(function (enums) {
-                _this.enumsSubject.onNext(enums);
+                _this.enumsCache = enums;
+                _this.enumsLoadingListeners.forEach(function (l) { return l(enums); });
             });
             return fetchRes;
         };
@@ -190,7 +191,7 @@ var cuba;
             fetchRes.catch(function (error) {
                 if (CubaApp.isTokenExpiredResponse(error.response)) {
                     _this.clearAuthData();
-                    _this.tokenExpirySubject.onNext(true);
+                    _this.tokenExpiryListeners.forEach(function (l) { return l(); });
                 }
             });
             return fetchRes.then(function (resp) {
@@ -205,6 +206,26 @@ var cuba;
                         return resp.text();
                 }
             });
+        };
+        CubaApp.prototype.onLocaleChange = function (c) {
+            var _this = this;
+            this.localeChangeListeners.push(c);
+            return function () { return _this.localeChangeListeners.splice(_this.localeChangeListeners.indexOf(c), 1); };
+        };
+        CubaApp.prototype.onTokenExpiry = function (c) {
+            var _this = this;
+            this.tokenExpiryListeners.push(c);
+            return function () { return _this.tokenExpiryListeners.splice(_this.tokenExpiryListeners.indexOf(c), 1); };
+        };
+        CubaApp.prototype.onEnumsLoaded = function (c) {
+            var _this = this;
+            this.enumsLoadingListeners.push(c);
+            return function () { return _this.enumsLoadingListeners.splice(_this.enumsLoadingListeners.indexOf(c), 1); };
+        };
+        CubaApp.prototype.onMessagesLoaded = function (c) {
+            var _this = this;
+            this.messagesLoadingListeners.push(c);
+            return function () { return _this.messagesLoadingListeners.splice(_this.messagesLoadingListeners.indexOf(c), 1); };
         };
         CubaApp.prototype.checkStatus = function (response) {
             if (response.status >= 200 && response.status < 300) {

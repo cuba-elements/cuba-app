@@ -6,8 +6,7 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.7.0",
-    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0",
-    "rxjs": "Reactive-Extensions/rxjs#^4.1.0"
+    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

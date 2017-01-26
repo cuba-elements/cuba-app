@@ -43,8 +43,12 @@
 
       attached: function() {
         this.__subscriptions = [];
+        if (this.app.messagesCache) {
+          this.serverMessages = this.app.messagesCache;
+          this.notifyPath('serverMessages');
+        }
         this.__subscriptions.push(
-          cuba.getApp().messagesSubject.subscribe(function(serverMessages) {
+          this.app.onMessagesLoaded(function(serverMessages) {
             if (!serverMessages) {
               return;
             }
@@ -52,8 +56,13 @@
             this.notifyPath('serverMessages');
           }.bind(this))
         );
+
+        if (this.app.enumsCache) {
+          this.enums = _convertEnums(this.app.enumsCache);
+          this.notifyPath('enums');
+        }
         this.__subscriptions.push(
-          cuba.getApp().enumsSubject.subscribe(function(enums) {
+          this.app.onEnumsLoaded(function(enums) {
             if (!enums) {
               return;
             }
@@ -62,7 +71,7 @@
           }.bind(this))
         );
         this.__subscriptions.push(
-          cuba.getApp().localeSubject.subscribe(function(locale) {
+          this.app.onLocaleChange(function(locale) {
             var messages = this.messages;
             this.set('messages', {});
             this.set('messages', messages);
@@ -72,7 +81,7 @@
 
       detached: function() {
         for (var i = 0; i < this.__subscriptions.length; i++) {
-          this.__subscriptions[i].dispose();
+          this.__subscriptions[i]();
         }
       },
 
