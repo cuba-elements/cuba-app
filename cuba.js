@@ -195,6 +195,9 @@ var cuba;
                 }
             });
             return fetchRes.then(function (resp) {
+                if (resp.status === 204) {
+                    return resp.text();
+                }
                 switch (handleAs) {
                     case "text":
                         return resp.text();
