@@ -1,6 +1,6 @@
 module cuba {
 
-    const apps:CubaApp[] = [];
+    const apps: CubaApp[] = [];
 
     export interface AppConfig {
         apiUrl: string,
@@ -44,13 +44,13 @@ module cuba {
         static USER_NAME_STORAGE_KEY = 'cubaUserName';
         static LOCALE_STORAGE_KEY = 'cubaLocale';
 
-        public messagesCache:any[];
-        public enumsCache:any[];
+        public messagesCache: any[];
+        public enumsCache: any[];
 
-        private tokenExpiryListeners:(() => {})[] = [];
-        private messagesLoadingListeners:((messages: any[]) => {})[] = [];
-        private enumsLoadingListeners:((enums: any[]) => {})[] = [];
-        private localeChangeListeners:((locale: string) => {})[] = [];
+        private tokenExpiryListeners: (() => {})[] = [];
+        private messagesLoadingListeners: ((messages: any[]) => {})[] = [];
+        private enumsLoadingListeners: ((enums: any[]) => {})[] = [];
+        private localeChangeListeners: ((locale: string) => {})[] = [];
 
         constructor(public name = "",
                     public apiUrl = '/app/rest/',
@@ -77,7 +77,7 @@ module cuba {
             this.localeChangeListeners.forEach((l) => l(this.locale));
         }
 
-        login(login: string, password: string): Promise<{access_token: string}> {
+        login(login: string, password: string): Promise<{ access_token: string }> {
             if (login == null) login = '';
             if (password == null) password = '';
             let fetchOptions = {
@@ -105,11 +105,11 @@ module cuba {
             return fetch(this.apiUrl + 'v2/oauth/revoke', fetchOptions).then(this.checkStatus);
         }
 
-        loadEntities(entityName, options?: {view?: string, sort?: string, limit?: number, offset?: number}): Promise<any[]> {
+        loadEntities(entityName, options?: { view?: string, sort?: string, limit?: number, offset?: number }): Promise<any[]> {
             return this.ajax('GET', 'v2/entities/' + entityName, options, {handleAs: 'json'});
         }
 
-        loadEntity(entityName, id, options?: {view?: string}): Promise<any> {
+        loadEntity(entityName, id, options?: { view?: string }): Promise<any> {
             return this.ajax('GET', 'v2/entities/' + entityName + '/' + id, options, {handleAs: 'json'});
         }
 
@@ -171,7 +171,7 @@ module cuba {
             return this.ajax('GET', 'v2/userInfo', null, {handleAs: 'json'});
         }
 
-        private _getBasicAuthHeaders(): {[header: string]: string} {
+        private _getBasicAuthHeaders(): { [header: string]: string } {
             return {
                 "Accept-Language": this.locale,
                 "Authorization": "Basic " + btoa(this.restClientId + ':' + this.restClientSecret),
@@ -225,6 +225,11 @@ module cuba {
             });
 
             return fetchRes.then((resp) => {
+
+                if(resp.status === 204){
+                    return resp.text();
+                }
+
                 switch (handleAs) {
                     case "text":
                         return resp.text();
