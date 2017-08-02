@@ -6,7 +6,7 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#^1.7.0",
-    "promise-polyfill": "polymerlabs/promise-polyfill#^1.0.0"
+    "cuba-js-sdk": "git@git.haulmont.com:platform-web-components/cuba-js-sdk.git"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
