@@ -44,13 +44,18 @@ Adds `cuba` object to the global JS scope.
 
         _setupApp: function(apiUrl, name) {
 
+          if (apiUrl == null) {
+            return;
+          }
+
           if (this.app) {
             throw new Error("Cuba app is already initialized");
           }
 
           this._setApp(cuba.initializeApp({
             name: this.name,
-            apiUrl: this.apiUrl
+            apiUrl: this.apiUrl,
+            storage: localStorage
           }));
 
           this.fire('cuba-app-initialized');
