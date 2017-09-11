@@ -87,6 +87,9 @@
       },
 
       __computeMsg: function(app, serverMessages, messages) {
+        if (app == null || serverMessages == null || messages == null) {
+          return;
+        }
         return function(key) {
 
           var message = messages[cuba.getApp().locale] ? messages[cuba.getApp().locale][key] : null;
@@ -103,6 +106,9 @@
       },
 
       __computeEnumValues: function(app, enums) {
+        if (app == null || enums == null) {
+          return;
+        }
         return function(enumName) {
           return enums[enumName];
         }
