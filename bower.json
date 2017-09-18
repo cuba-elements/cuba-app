@@ -5,7 +5,7 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2",
-    "cuba-js": "git@git.haulmont.com:platform-web-components/cuba-js.git"
+    "cuba-js": "cuba-platform/cuba-rest-js#^0.1.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
