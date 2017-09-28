@@ -18,7 +18,22 @@ Adds `cuba` object to the global JS scope.
       "use strict";
 
       Polymer({
+
         is: 'cuba-app',
+
+        /**
+         * Fired on attempt to access REST API without or with expired token.
+         * Usually it means that user login required. See `cuba-login`
+         *
+         * @event cuba-token-expired
+         */
+
+        /**
+         * Fired when CubaApp instance created
+         *
+         * @event cuba-app-initialized
+         */
+
         properties: {
           /**
            * Connection URL to CUBA REST API v2.
@@ -28,11 +43,19 @@ Adds `cuba` object to the global JS scope.
             type: String
           },
 
+          /**
+           * App name
+           */
           name: {
             type: String,
             value: ""
           },
 
+          /**
+           * Instance of CubaApp, see https://github.com/cuba-platform/cuba-rest-js.git
+           *
+           * @type {cuba.CubaApp}
+           */
           app: {
             type: Object,
             readOnly: true,
@@ -67,12 +90,5 @@ Adds `cuba` object to the global JS scope.
         }
       });
     })();
-
-    /**
-     * Fired on attempt to access REST API without or with expired token.
-     * Usually it means that user login required. See `cuba-login`
-     *
-     * @event cuba-token-expired
-     */
   </script>
 </dom-module>
