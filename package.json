@@ -1,0 +1,20 @@
+{
+  "name": "@cuba-platform/cuba-app",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "gen-tsd": "gen-typescript-declarations --deleteExisting --outDir ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cuba-elements/cuba-app.git"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/cuba-elements/cuba-app/issues"
+  },
+  "homepage": "https://github.com/cuba-elements/cuba-app#readme",
+  "devDependencies": {
+    "@polymer/gen-typescript-declarations": "^1.2.2"
+  }
+}
