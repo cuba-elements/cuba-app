@@ -7,3 +7,5 @@
  * To modify these typings, edit the source file(s):
  *   cuba-js-script.html
  */
+
+/// <reference path="../cuba-rest-js/dist-browser/cuba.d.ts" />

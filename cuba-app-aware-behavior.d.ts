@@ -9,7 +9,7 @@
  */
 
 interface CubaAppAwareBehavior {
-  readonly app: object|null|undefined;
+  readonly app: cuba.CubaApp|null;
   appName: string|null|undefined;
   _appNameChanged(appName: any): void;
 }
