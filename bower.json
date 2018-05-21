@@ -5,7 +5,7 @@
   ],
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2",
-    "cuba-rest-js": "cuba-platform/cuba-rest-js#^0.3.0"
+    "cuba-rest-js": "cuba-platform/cuba-rest-js#^0.4.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#1 - 2",
