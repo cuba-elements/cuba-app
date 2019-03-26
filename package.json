@@ -15,6 +15,6 @@
   },
   "homepage": "https://github.com/cuba-elements/cuba-app#readme",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.2.2"
+    "@polymer/gen-typescript-declarations": "^1.6.1"
   }
 }
